@@ -7317,6 +7317,8 @@
 #include "modular_corvax\modules\jobs\code\job_restrictions.dm"
 #include "modular_corvax\modules\npc_combat\code\npc_self_defense.dm"
 #include "modular_corvax\modules\npc_performance\code\npc_performance.dm"
+#include "modular_corvax\modules\personal_music_box\code\loadout.dm"
+#include "modular_corvax\modules\personal_music_box\code\personal_music_box.dm"
 #include "modular_corvax\modules\phones\code\endpost_notifications.dm"
 #include "modular_corvax\modules\phones\code\phone_book.dm"
 #include "modular_corvax\modules\rain_showers\code\rain_showers.dm"

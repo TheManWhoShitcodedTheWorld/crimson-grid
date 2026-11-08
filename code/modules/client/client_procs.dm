@@ -236,6 +236,8 @@ GLOBAL_LIST_INIT(unrecommended_builds, list(
 
 //This stops files larger than UPLOAD_LIMIT being sent from client to server via input(), client.Import() etc.
 /client/AllowUpload(filename, filelength)
+	if(music_box_upload_size_limit && filelength <= music_box_upload_size_limit && IS_SOUND_FILE_SAFE(lowertext(filename))) // CORVAX EDIT ADD - personal music box
+		return TRUE // CORVAX EDIT ADD
 	var/client_max_file_size = CONFIG_GET(number/upload_limit)
 	if (holder)
 		var/admin_max_file_size = CONFIG_GET(number/upload_limit_admin)
