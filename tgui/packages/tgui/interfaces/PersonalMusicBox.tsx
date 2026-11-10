@@ -1,10 +1,10 @@
 import {
   Box,
   Button,
-  Knob,
   LabeledList,
   NoticeBox,
   Section,
+  Slider,
 } from 'tgui-core/components';
 import type { BooleanLike } from 'tgui-core/react';
 
@@ -55,11 +55,11 @@ export const PersonalMusicBox = () => {
   } = data;
 
   return (
-    <Window title="Личный проигрыватель" width={420} height={480}>
+    <Window title="Айпод" width={420} height={480}>
       <Window.Content scrollable>
         {!in_hand && (
           <NoticeBox>
-            Возьмите проигрыватель в руки, чтобы загрузить или выбрать трек.
+            Возьмите айпод в руки, чтобы загрузить или выбрать трек.
           </NoticeBox>
         )}
         <Section
@@ -98,14 +98,13 @@ export const PersonalMusicBox = () => {
               {playing ? 'Играет' : has_track ? 'Готов' : 'Ожидает трек'}
             </LabeledList.Item>
             <LabeledList.Item label="Громкость">
-              <Knob
-                size={1.25}
+              <Slider
                 value={volume}
                 unit="%"
                 minValue={0}
                 maxValue={100}
-                step={5}
-                stepPixelSize={1}
+                step={1}
+                stepPixelSize={2}
                 onChange={(e, value) => act('set_volume', { volume: value })}
               />
             </LabeledList.Item>

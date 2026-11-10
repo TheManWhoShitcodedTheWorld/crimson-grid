@@ -17,72 +17,52 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_library)
 GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 
 /datum/modpack/personal_music_box
-	name = "Личный проигрыватель"
-	desc = "Портативный проигрыватель со своими треками (.ogg и .mp3). Доступен в лоадауте."
+	name = "Айпод"
+	desc = "Портативный плеер: свои треки (.ogg и .mp3) слышит только владелец. Доступен в лоадауте."
 	author = "BlueMoon-Labs"
 
 /client
 	var/music_box_upload_size_limit = 0
 
-/datum/jukebox/personal_music_box
-	volume = PERSONAL_MUSIC_BOX_MAX_VOLUME
-
-/datum/jukebox/personal_music_box/init_songs()
-	return list()
-
-/datum/jukebox/personal_music_box/start_music()
-	var/turf/source_turf = get_turf(parent)
-	if(!source_turf)
-		return
-	for(var/mob/nearby in hearers(sound_range, source_turf))
-		register_listener(nearby)
-
-/datum/jukebox/personal_music_box/proc/get_volume()
-	return volume
-
 /obj/item/personal_music_box
-	name = "личный проигрыватель"
-	desc = "Портативный музыкальный проигрыватель. Загрузите с компьютера свои треки в формате .ogg или .mp3 и слушайте их где угодно."
-	icon = 'modular_corvax/modules/personal_music_box/icons/personal_music_box.dmi'
-	icon_state = "mbox0"
-	inhand_icon_state = "mbox0"
-	lefthand_file = 'modular_corvax/modules/personal_music_box/icons/boombox_lefthand.dmi'
-	righthand_file = 'modular_corvax/modules/personal_music_box/icons/boombox_righthand.dmi'
+	name = "айпод"
+	desc = "Портативный плеер с наушниками. Музыку слышит только владелец. Загрузите с компьютера свои треки в формате .ogg или .mp3."
+	icon = 'modular_corvax/modules/personal_music_box/icons/ipod.dmi'
+	icon_state = "ipod"
+	inhand_icon_state = "ipod"
+	lefthand_file = 'modular_corvax/modules/personal_music_box/icons/ipod_lefthand.dmi'
+	righthand_file = 'modular_corvax/modules/personal_music_box/icons/ipod_righthand.dmi'
 	w_class = WEIGHT_CLASS_SMALL
 	verb_say = "states"
 	COOLDOWN_DECLARE(play_cooldown)
-	var/datum/jukebox/personal_music_box/music_player
 	var/datum/track/custom_track
 	var/curfile_path
 	var/song_name
 	var/song_timerid
-	var/last_position
+	var/music_volume = PERSONAL_MUSIC_BOX_DEFAULT_VOLUME
+	var/music_loops = TRUE
+	var/playback_channel
+	var/datum/weakref/listener_ref
 
 /obj/item/personal_music_box/Initialize(mapload)
 	. = ..()
-	ru_names_rename(ru_names_list(name, "личный проигрыватель", "личного проигрывателя", "личному проигрывателю", "личный проигрыватель", "личным проигрывателем", "личном проигрывателе", MALE))
-	music_player = new(src)
-	music_player.sound_loops = TRUE
-	music_player.set_new_volume(PERSONAL_MUSIC_BOX_DEFAULT_VOLUME)
+	ru_names_rename(ru_names_list(name, "айпод", "айпода", "айподу", "айпод", "айподом", "айподе", MALE))
+	RegisterSignal(src, COMSIG_MOVABLE_MOVED, PROC_REF(on_moved))
 	update_appearance()
 
 /obj/item/personal_music_box/Destroy()
-	if(song_timerid)
-		deltimer(song_timerid)
-		song_timerid = null
-	STOP_PROCESSING(SSprocessing, src)
-	QDEL_NULL(music_player)
+	stop_music()
 	QDEL_NULL(custom_track)
 	return ..()
 
 /obj/item/personal_music_box/examine(mob/user)
 	. = ..()
-	. += span_notice("Активируйте проигрыватель в руке, чтобы открыть меню.")
+	. += span_notice("Активируйте айпод в руке, чтобы открыть меню. Музыку слышит только владелец.")
 	if(curfile_path)
 		. += span_notice("Загружен трек: [song_name].")
 
 /obj/item/personal_music_box/update_icon_state()
-	icon_state = is_playing() ? "mboxon" : (curfile_path ? "mbox1" : "mbox0")
+	icon_state = is_playing() ? "ipod_on" : "ipod"
 	inhand_icon_state = icon_state
 	return ..()
 
@@ -91,17 +71,39 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 	update_slot_icon()
 
 /obj/item/personal_music_box/proc/is_playing()
-	return !isnull(music_player?.active_song_sound)
+	return !isnull(playback_channel)
+
+/obj/item/personal_music_box/proc/get_holder()
+	var/atom/current = loc
+	while(current && !isturf(current))
+		if(ismob(current))
+			return current
+		current = current.loc
+	return null
 
 /obj/item/personal_music_box/process(seconds_per_tick)
 	if(!is_playing())
 		return PROCESS_KILL
-	var/turf/current_turf = get_turf(src)
-	var/current_position = current_turf ? "[current_turf.x]_[current_turf.y]_[current_turf.z]" : null
-	if(current_position == last_position)
-		return
-	last_position = current_position
-	music_player.update_all()
+	var/mob/listener = listener_ref?.resolve()
+	if(!listener?.client || get_holder() != listener)
+		stop_music()
+
+/obj/item/personal_music_box/proc/on_moved(datum/source, atom/old_loc)
+	SIGNAL_HANDLER
+	if(is_playing() && get_holder() != listener_ref?.resolve())
+		stop_music()
+
+/obj/item/personal_music_box/proc/on_listener_deaf(mob/source)
+	SIGNAL_HANDLER
+	if(is_playing())
+		send_sound(source, SOUND_UPDATE)
+
+/obj/item/personal_music_box/proc/send_sound(mob/listener, status = NONE)
+	var/sound/music = sound(custom_track.song_path, music_loops, FALSE, playback_channel, music_volume)
+	music.priority = 255
+	music.environment = SOUND_ENVIRONMENT_NONE
+	music.status = status | (HAS_TRAIT(listener, TRAIT_DEAF) ? SOUND_MUTE : NONE)
+	SEND_SOUND(listener, music)
 
 /obj/item/personal_music_box/ui_state(mob/user)
 	return GLOB.inventory_state
@@ -117,11 +119,11 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 	var/play_block_reason = get_play_block_reason()
 	var/list/data = list()
 	data["playing"] = is_playing()
-	data["repeat"] = !!music_player.sound_loops
+	data["repeat"] = !!music_loops
 	data["has_track"] = !!curfile_path
 	data["track_name"] = song_name
 	data["track_duration"] = custom_track ? DisplayTimeText(custom_track.song_length) : null
-	data["volume"] = music_player.get_volume()
+	data["volume"] = music_volume
 	data["in_hand"] = loc == user
 	data["upload_ready"] = isnull(upload_block_reason)
 	data["upload_block_reason"] = upload_block_reason
@@ -167,20 +169,23 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 /obj/item/personal_music_box/proc/set_volume(new_volume)
 	if(!isnum(new_volume))
 		return FALSE
-	music_player.set_new_volume(round(new_volume))
+	music_volume = clamp(round(new_volume), 0, PERSONAL_MUSIC_BOX_MAX_VOLUME)
+	var/mob/listener = listener_ref?.resolve()
+	if(is_playing() && listener)
+		send_sound(listener, SOUND_UPDATE)
 	return TRUE
 
 /obj/item/personal_music_box/proc/toggle_repeat()
 	if(is_playing())
 		return FALSE
-	music_player.sound_loops = !music_player.sound_loops
+	music_loops = !music_loops
 	return TRUE
 
 /obj/item/personal_music_box/proc/get_upload_block_reason(mob/user, ignore_own_lock = FALSE)
 	if(is_playing())
-		return "Сначала выключите проигрыватель."
+		return "Сначала выключите айпод."
 	if(!user || loc != user)
-		return "Проигрыватель должен быть у вас в руках."
+		return "Айпод должен быть у вас в руках."
 	if(!user.ckey)
 		return "Некому загружать трек."
 	if(!ignore_own_lock && GLOB.personal_music_boxes_uploading[user.ckey])
@@ -200,7 +205,9 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 	if(!curfile_path || !custom_track)
 		return "Сначала загрузите трек."
 	if(is_playing())
-		return "Проигрыватель уже играет."
+		return "Айпод уже играет."
+	if(!get_holder()?.client)
+		return "Айпод должен быть у вас при себе."
 	if(!fexists(curfile_path))
 		return "Файл трека больше не найден на сервере."
 	if(!COOLDOWN_FINISHED(src, play_cooldown))
@@ -303,7 +310,6 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 	new_track.song_length = entry["length"]
 	QDEL_NULL(custom_track)
 	custom_track = new_track
-	music_player.selection = new_track
 	curfile_path = entry["path"]
 	song_name = entry["name"]
 	refresh_icons()
@@ -336,17 +342,17 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 	start_music(user)
 
 /obj/item/personal_music_box/proc/start_music(mob/living/user)
-	if(!custom_track || is_playing())
-		return
-	COOLDOWN_START(src, play_cooldown, PERSONAL_MUSIC_BOX_PLAY_COOLDOWN)
-	music_player.selection = custom_track
-	music_player.start_music()
-	if(!is_playing())
+	var/mob/listener = get_holder()
+	if(!custom_track || is_playing() || !listener?.client)
 		to_chat(user, span_warning("Не удалось начать воспроизведение."))
 		return
-	if(!music_player.sound_loops)
+	COOLDOWN_START(src, play_cooldown, PERSONAL_MUSIC_BOX_PLAY_COOLDOWN)
+	playback_channel = SSsounds.reserve_sound_channel_for_datum(src)
+	listener_ref = WEAKREF(listener)
+	RegisterSignals(listener, list(SIGNAL_ADDTRAIT(TRAIT_DEAF), SIGNAL_REMOVETRAIT(TRAIT_DEAF)), PROC_REF(on_listener_deaf))
+	send_sound(listener)
+	if(!music_loops)
 		song_timerid = addtimer(CALLBACK(src, PROC_REF(stop_music)), custom_track.song_length, TIMER_STOPPABLE|TIMER_DELETE_ME)
-	last_position = null
 	START_PROCESSING(SSprocessing, src)
 	refresh_icons()
 	visible_message(span_notice("[user] включает [declent_ru(ACCUSATIVE)]."), span_notice("Вы включаете [declent_ru(ACCUSATIVE)]."), vision_distance = COMBAT_MESSAGE_RANGE)
@@ -357,8 +363,14 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 		deltimer(song_timerid)
 		song_timerid = null
 	STOP_PROCESSING(SSprocessing, src)
-	last_position = null
-	music_player?.unlisten_all()
+	var/mob/listener = listener_ref?.resolve()
+	listener_ref = null
+	if(listener)
+		UnregisterSignal(listener, list(SIGNAL_ADDTRAIT(TRAIT_DEAF), SIGNAL_REMOVETRAIT(TRAIT_DEAF)))
+	if(playback_channel)
+		listener?.stop_sound_channel(playback_channel)
+		SSsounds.free_sound_channel(playback_channel)
+		playback_channel = null
 	if(QDELING(src))
 		return
 	refresh_icons()
