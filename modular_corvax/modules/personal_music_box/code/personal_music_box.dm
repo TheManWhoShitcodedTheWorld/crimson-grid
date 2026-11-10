@@ -7,6 +7,8 @@
 #define PERSONAL_MUSIC_BOX_MAX_TRACK_LENGTH (20 MINUTES)
 #define PERSONAL_MUSIC_BOX_MAX_TRACK_NAME_LEN 64
 #define PERSONAL_MUSIC_BOX_MAX_VOLUME 100
+#define PERSONAL_MUSIC_BOX_MIN_SPEAKER_RANGE 2
+#define PERSONAL_MUSIC_BOX_MAX_SPEAKER_RANGE 15
 #define PERSONAL_MUSIC_BOX_DEFAULT_VOLUME 50
 #define PERSONAL_MUSIC_BOX_UPLOAD_LOCK_TIMEOUT (5 MINUTES)
 
@@ -18,15 +20,42 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 
 /datum/modpack/personal_music_box
 	name = "Айпод"
-	desc = "Портативный плеер: свои треки (.ogg и .mp3) слышит только владелец. Доступен в лоадауте."
+	desc = "Портативный плеер: свои треки (.ogg и .mp3) в наушниках или через динамик. Доступен в лоадауте."
 	author = "BlueMoon-Labs"
 
 /client
 	var/music_box_upload_size_limit = 0
 
+/datum/sound_token/proc/set_sound_range(new_range)
+	if(range == new_range)
+		return
+	for(var/datum/spatial_grid_cell/cell as anything in cell_tracker.member_cells)
+		UnregisterSignal(cell, list(SPATIAL_GRID_CELL_ENTERED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), SPATIAL_GRID_CELL_EXITED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS)))
+	range = new_range
+	cell_tracker = new /datum/cell_tracker(range, range)
+	update_tracked_cells()
+	update_all_listeners()
+
+/obj/item/clothing/ears/personal_music_box_headphones
+	name = "наушники"
+	desc = "Наушники, подключённые к айподу."
+	icon = 'icons/obj/clothing/accessories.dmi'
+	icon_state = "headphones"
+	inhand_icon_state = "headphones"
+	worn_icon = 'icons/mob/clothing/ears.dmi'
+	gender = PLURAL
+	var/music_active = FALSE
+
+/obj/item/clothing/ears/personal_music_box_headphones/proc/set_playing(new_state)
+	if(music_active == new_state)
+		return
+	music_active = new_state
+	icon_state = music_active ? "headphones_on" : "headphones"
+	update_slot_icon()
+
 /obj/item/personal_music_box
 	name = "айпод"
-	desc = "Портативный плеер с наушниками. Музыку слышит только владелец. Загрузите с компьютера свои треки в формате .ogg или .mp3."
+	desc = "Портативный плеер с наушниками и режимом динамика. Загрузите с компьютера свои треки в формате .ogg или .mp3."
 	icon = 'modular_corvax/modules/personal_music_box/icons/ipod.dmi'
 	icon_state = "ipod"
 	inhand_icon_state = "ipod"
@@ -43,21 +72,28 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 	var/music_loops = TRUE
 	var/playback_channel
 	var/datum/weakref/listener_ref
+	var/speaker_mode = FALSE
+	var/datum/sound_token/speaker_token
+	var/obj/item/clothing/ears/personal_music_box_headphones/headphones
+	var/last_position
 
 /obj/item/personal_music_box/Initialize(mapload)
 	. = ..()
 	ru_names_rename(ru_names_list(name, "айпод", "айпода", "айподу", "айпод", "айподом", "айподе", MALE))
+	headphones = new(src)
+	RegisterSignal(headphones, COMSIG_ITEM_DROPPED, PROC_REF(on_headphones_dropped))
 	RegisterSignal(src, COMSIG_MOVABLE_MOVED, PROC_REF(on_moved))
 	update_appearance()
 
 /obj/item/personal_music_box/Destroy()
 	stop_music()
+	QDEL_NULL(headphones)
 	QDEL_NULL(custom_track)
 	return ..()
 
 /obj/item/personal_music_box/examine(mob/user)
 	. = ..()
-	. += span_notice("Активируйте айпод в руке, чтобы открыть меню. Музыку слышит только владелец.")
+	. += span_notice("Активируйте айпод в руке, чтобы открыть меню. В наушниках музыку слышит только владелец, в режиме динамика — все рядом.")
 	if(curfile_path)
 		. += span_notice("Загружен трек: [song_name].")
 
@@ -67,11 +103,15 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 	return ..()
 
 /obj/item/personal_music_box/proc/refresh_icons()
+	headphones?.set_playing(is_playing() && !speaker_mode)
 	update_appearance()
 	update_slot_icon()
 
 /obj/item/personal_music_box/proc/is_playing()
-	return !isnull(playback_channel)
+	return !isnull(playback_channel) || !isnull(speaker_token)
+
+/obj/item/personal_music_box/proc/get_speaker_range()
+	return PERSONAL_MUSIC_BOX_MIN_SPEAKER_RANGE + round(music_volume * (PERSONAL_MUSIC_BOX_MAX_SPEAKER_RANGE - PERSONAL_MUSIC_BOX_MIN_SPEAKER_RANGE) / PERSONAL_MUSIC_BOX_MAX_VOLUME)
 
 /obj/item/personal_music_box/proc/get_holder()
 	var/atom/current = loc
@@ -84,13 +124,25 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 /obj/item/personal_music_box/process(seconds_per_tick)
 	if(!is_playing())
 		return PROCESS_KILL
+	if(speaker_token)
+		var/turf/current_turf = get_turf(src)
+		var/current_position = current_turf ? "[current_turf.x]_[current_turf.y]_[current_turf.z]" : null
+		if(current_position && current_position != last_position)
+			last_position = current_position
+			speaker_token.source_moved()
+		return
 	var/mob/listener = listener_ref?.resolve()
 	if(!listener?.client || get_holder() != listener)
 		stop_music()
 
 /obj/item/personal_music_box/proc/on_moved(datum/source, atom/old_loc)
 	SIGNAL_HANDLER
-	if(is_playing() && get_holder() != listener_ref?.resolve())
+	if(is_playing() && !speaker_token && get_holder() != listener_ref?.resolve())
+		stop_music()
+
+/obj/item/personal_music_box/proc/on_headphones_dropped(datum/source, mob/user)
+	SIGNAL_HANDLER
+	if(is_playing() && !speaker_token)
 		stop_music()
 
 /obj/item/personal_music_box/proc/on_listener_deaf(mob/source)
@@ -124,6 +176,8 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 	data["track_name"] = song_name
 	data["track_duration"] = custom_track ? DisplayTimeText(custom_track.song_length) : null
 	data["volume"] = music_volume
+	data["speaker_mode"] = speaker_mode
+	data["speaker_range"] = get_speaker_range()
 	data["in_hand"] = loc == user
 	data["upload_ready"] = isnull(upload_block_reason)
 	data["upload_block_reason"] = upload_block_reason
@@ -163,6 +217,9 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 			playsound(src, 'sound/machines/ping.ogg', 50, FALSE)
 			INVOKE_ASYNC(src, PROC_REF(upload_file), living_user)
 			return TRUE
+		if("set_speaker")
+			set_speaker_mode(text2num(params["speaker"]), living_user)
+			return TRUE
 		if("set_volume")
 			return set_volume(text2num(params["volume"]))
 
@@ -170,6 +227,10 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 	if(!isnum(new_volume))
 		return FALSE
 	music_volume = clamp(round(new_volume), 0, PERSONAL_MUSIC_BOX_MAX_VOLUME)
+	if(speaker_token)
+		speaker_token.set_sound_range(get_speaker_range())
+		speaker_token.set_volume(music_volume)
+		return TRUE
 	var/mob/listener = listener_ref?.resolve()
 	if(is_playing() && listener)
 		send_sound(listener, SOUND_UPDATE)
@@ -206,8 +267,10 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 		return "Сначала загрузите трек."
 	if(is_playing())
 		return "Айпод уже играет."
-	if(!get_holder()?.client)
-		return "Айпод должен быть у вас при себе."
+	if(!speaker_mode)
+		var/headphones_reason = get_headphones_block_reason()
+		if(headphones_reason)
+			return headphones_reason
 	if(!fexists(curfile_path))
 		return "Файл трека больше не найден на сервере."
 	if(!COOLDOWN_FINISHED(src, play_cooldown))
@@ -341,18 +404,73 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 		return
 	start_music(user)
 
-/obj/item/personal_music_box/proc/start_music(mob/living/user)
-	var/mob/listener = get_holder()
-	if(!custom_track || is_playing() || !listener?.client)
-		to_chat(user, span_warning("Не удалось начать воспроизведение."))
+/obj/item/personal_music_box/proc/get_headphones_block_reason()
+	var/mob/holder = get_holder()
+	if(!holder?.client)
+		return "Айпод должен быть у вас при себе."
+	if(!ishuman(holder))
+		return "Наушники подходят только людям. Включите режим динамика."
+	var/mob/living/carbon/human/human_holder = holder
+	var/obj/item/worn_item = human_holder.get_item_by_slot(ITEM_SLOT_EARS)
+	if(worn_item && worn_item != headphones)
+		return "Слот для наушников занят. Освободите его или включите режим динамика."
+	return null
+
+/obj/item/personal_music_box/proc/deploy_headphones(mob/living/carbon/human/listener)
+	if(listener.get_item_by_slot(ITEM_SLOT_EARS) == headphones)
+		return TRUE
+	retract_headphones()
+	return listener.equip_to_slot_if_possible(headphones, ITEM_SLOT_EARS, qdel_on_fail = FALSE, disable_warning = TRUE)
+
+/obj/item/personal_music_box/proc/retract_headphones()
+	if(!headphones || headphones.loc == src)
 		return
-	COOLDOWN_START(src, play_cooldown, PERSONAL_MUSIC_BOX_PLAY_COOLDOWN)
+	if(ismob(headphones.loc))
+		var/mob/wearer = headphones.loc
+		wearer.transferItemToLoc(headphones, src, TRUE)
+		return
+	headphones.forceMove(src)
+
+/obj/item/personal_music_box/proc/set_speaker_mode(new_mode, mob/living/user)
+	new_mode = !!new_mode
+	if(speaker_mode == new_mode)
+		return
+	var/was_playing = is_playing()
+	if(was_playing)
+		stop_music()
+	speaker_mode = new_mode
+	if(was_playing)
+		start_music(user)
+	else
+		refresh_icons()
+
+/obj/item/personal_music_box/proc/start_private(mob/listener)
 	playback_channel = SSsounds.reserve_sound_channel_for_datum(src)
 	listener_ref = WEAKREF(listener)
 	RegisterSignals(listener, list(SIGNAL_ADDTRAIT(TRAIT_DEAF), SIGNAL_REMOVETRAIT(TRAIT_DEAF)), PROC_REF(on_listener_deaf))
 	send_sound(listener)
+
+/obj/item/personal_music_box/proc/start_speaker()
+	speaker_token = new /datum/sound_token(src, custom_track.song_path, get_speaker_range(), music_volume, _sound_duration_override = custom_track.song_length, _repeating = music_loops)
+
+/obj/item/personal_music_box/proc/start_music(mob/living/user)
+	if(!custom_track || is_playing())
+		to_chat(user, span_warning("Не удалось начать воспроизведение."))
+		return
+	var/mob/listener = get_holder()
+	if(!speaker_mode)
+		var/block_reason = get_headphones_block_reason()
+		if(block_reason || !deploy_headphones(listener))
+			to_chat(user, span_warning(block_reason || "Не удалось надеть наушники."))
+			return
+	COOLDOWN_START(src, play_cooldown, PERSONAL_MUSIC_BOX_PLAY_COOLDOWN)
+	if(speaker_mode)
+		start_speaker()
+	else
+		start_private(listener)
 	if(!music_loops)
 		song_timerid = addtimer(CALLBACK(src, PROC_REF(stop_music)), custom_track.song_length, TIMER_STOPPABLE|TIMER_DELETE_ME)
+	last_position = null
 	START_PROCESSING(SSprocessing, src)
 	refresh_icons()
 	visible_message(span_notice("[user] включает [declent_ru(ACCUSATIVE)]."), span_notice("Вы включаете [declent_ru(ACCUSATIVE)]."), vision_distance = COMBAT_MESSAGE_RANGE)
@@ -363,6 +481,8 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 		deltimer(song_timerid)
 		song_timerid = null
 	STOP_PROCESSING(SSprocessing, src)
+	last_position = null
+	QDEL_NULL(speaker_token)
 	var/mob/listener = listener_ref?.resolve()
 	listener_ref = null
 	if(listener)
@@ -371,6 +491,7 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 		listener?.stop_sound_channel(playback_channel)
 		SSsounds.free_sound_channel(playback_channel)
 		playback_channel = null
+	retract_headphones()
 	if(QDELING(src))
 		return
 	refresh_icons()
@@ -395,6 +516,8 @@ GLOBAL_LIST_EMPTY(personal_music_boxes_uploading)
 #undef PERSONAL_MUSIC_BOX_MAX_TRACK_LENGTH
 #undef PERSONAL_MUSIC_BOX_MAX_TRACK_NAME_LEN
 #undef PERSONAL_MUSIC_BOX_MAX_VOLUME
+#undef PERSONAL_MUSIC_BOX_MIN_SPEAKER_RANGE
+#undef PERSONAL_MUSIC_BOX_MAX_SPEAKER_RANGE
 #undef PERSONAL_MUSIC_BOX_DEFAULT_VOLUME
 #undef PERSONAL_MUSIC_BOX_UPLOAD_LOCK_TIMEOUT
 #undef PERSONAL_MUSIC_BOX_UPLOAD_DIR

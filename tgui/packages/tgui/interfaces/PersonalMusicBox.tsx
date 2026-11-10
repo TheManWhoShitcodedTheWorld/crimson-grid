@@ -25,6 +25,8 @@ type Data = {
   track_name: string | null;
   track_duration: string | null;
   volume: number;
+  speaker_mode: BooleanLike;
+  speaker_range: number;
   in_hand: BooleanLike;
   upload_ready: BooleanLike;
   upload_block_reason: string | null;
@@ -44,6 +46,8 @@ export const PersonalMusicBox = () => {
     track_name,
     track_duration,
     volume,
+    speaker_mode,
+    speaker_range,
     in_hand,
     upload_ready,
     upload_block_reason,
@@ -97,6 +101,22 @@ export const PersonalMusicBox = () => {
             <LabeledList.Item label="Статус">
               {playing ? 'Играет' : has_track ? 'Готов' : 'Ожидает трек'}
             </LabeledList.Item>
+            <LabeledList.Item label="Режим">
+              <Button
+                icon="headphones"
+                selected={!speaker_mode}
+                onClick={() => act('set_speaker', { speaker: 0 })}
+              >
+                Наушники
+              </Button>
+              <Button
+                icon="volume-up"
+                selected={!!speaker_mode}
+                onClick={() => act('set_speaker', { speaker: 1 })}
+              >
+                Динамик
+              </Button>
+            </LabeledList.Item>
             <LabeledList.Item label="Громкость">
               <Slider
                 value={volume}
@@ -108,6 +128,11 @@ export const PersonalMusicBox = () => {
                 onChange={(e, value) => act('set_volume', { volume: value })}
               />
             </LabeledList.Item>
+            {!!speaker_mode && (
+              <LabeledList.Item label="Слышно">
+                в радиусе {speaker_range} тайлов
+              </LabeledList.Item>
+            )}
           </LabeledList>
           {!!has_track && !playing && !play_ready && !!play_block_reason && (
             <NoticeBox mt={1}>{play_block_reason}</NoticeBox>
