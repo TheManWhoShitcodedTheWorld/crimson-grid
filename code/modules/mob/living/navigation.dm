@@ -34,18 +34,21 @@ GAME_VERB(/mob/living, navigate, "Navigate", "IC") // CRIMSON EDIT CHANGE ORIGIN
 
 /mob/living/proc/create_navigation()
 	var/list/destination_list = list()
-	var/list/connected_levels = SSmapping.get_connected_levels(z) // CORVAX EDIT ADD
+	var/turf/our_turf = get_turf(src) // CRIMSON EDIT ADD - inside a vehicle our own z is 0
+	if(!our_turf) // CRIMSON EDIT ADD
+		return // CRIMSON EDIT ADD
+	var/list/connected_levels = SSmapping.get_connected_levels(our_turf) // CORVAX EDIT ADD // CRIMSON EDIT CHANGE ORIGINAL: var/list/connected_levels = SSmapping.get_connected_levels(z)
 	for(var/atom/destination as anything in GLOB.navigate_destinations)
 		if(!(destination.z in connected_levels)) // CORVAX EDIT CHANGE - ORIGINAL: if(get_dist(destination, src) > MAX_NAVIGATE_RANGE)
 			continue
 		var/destination_name = GLOB.navigate_destinations[destination]
-		if(destination.z != z && is_multi_z_level(z)) // up or down is just a good indicator "we're on the station", we don't need to check specifics
+		if(destination.z != our_turf.z && is_multi_z_level(our_turf.z)) // up or down is just a good indicator "we're on the station", we don't need to check specifics // CRIMSON EDIT CHANGE ORIGINAL: if(destination.z != z && is_multi_z_level(z))
 			destination_name += ((get_dir_multiz(src, destination) & UP) ? " (выше)" : " (ниже)")
 
 		destination_list[destination_name] = destination
 
-	var/can_go_down = SSmapping.level_trait(z, ZTRAIT_DOWN)
-	var/can_go_up = SSmapping.level_trait(z, ZTRAIT_UP)
+	var/can_go_down = SSmapping.level_trait(our_turf.z, ZTRAIT_DOWN) // CRIMSON EDIT CHANGE ORIGINAL: var/can_go_down = SSmapping.level_trait(z, ZTRAIT_DOWN)
+	var/can_go_up = SSmapping.level_trait(our_turf.z, ZTRAIT_UP) // CRIMSON EDIT CHANGE ORIGINAL: var/can_go_up = SSmapping.level_trait(z, ZTRAIT_UP)
 	if(can_go_down)
 		destination_list["Близлежащий путь вниз"] = DOWN
 	if(can_go_up)
@@ -68,7 +71,8 @@ GAME_VERB(/mob/living, navigate, "Navigate", "IC") // CRIMSON EDIT CHANGE ORIGIN
 	var/list/zchange_fallbacks // CORVAX EDIT ADD
 	var/finding_zchange = FALSE
 	COOLDOWN_START(src, navigate_cooldown, 15 SECONDS)
-	if(navigate_target == UP || navigate_target == DOWN || (isatom(navigate_target) && navigate_target.z != z))
+	var/turf/our_turf = get_turf(src) // CRIMSON EDIT ADD - inside a vehicle our own z is 0
+	if(navigate_target == UP || navigate_target == DOWN || (isatom(navigate_target) && our_turf && navigate_target.z != our_turf.z)) // CRIMSON EDIT CHANGE ORIGINAL: if(navigate_target == UP || navigate_target == DOWN || (isatom(navigate_target) && navigate_target.z != z))
 		// lowering the cooldown to 5 seconds if we're navigating to a ladder or staircase instead of a proper destination
 		// (so we can decide to move to another destination right off the bat, rather than needing to wait)
 		COOLDOWN_START(src, navigate_cooldown, 5 SECONDS)
@@ -174,25 +178,28 @@ GAME_VERB(/mob/living, navigate, "Navigate", "IC") // CRIMSON EDIT CHANGE ORIGIN
 	. = list()
 	if(direction != UP && direction != DOWN)
 		return
+	var/turf/our_turf = get_turf(src) // CRIMSON EDIT ADD - inside a vehicle our own z is 0
+	if(!our_turf) // CRIMSON EDIT ADD
+		return // CRIMSON EDIT ADD
 
 	var/list/distances = list()
 	for(var/obj/structure/ladder/lad in GLOB.ladders)
-		if(lad.z != z)
+		if(lad.z != our_turf.z) // CRIMSON EDIT CHANGE ORIGINAL: if(lad.z != z)
 			continue
 		if(direction == UP && !lad.up)
 			continue
 		if(direction == DOWN && !lad.down)
 			continue
-		distances[lad] = get_dist_euclidean(lad, src)
+		distances[lad] = get_dist_euclidean(lad, our_turf) // CRIMSON EDIT CHANGE ORIGINAL: distances[lad] = get_dist_euclidean(lad, src)
 
 	for(var/obj/structure/stairs/stairs_bro in GLOB.stairs)
-		if(direction == UP && stairs_bro.z != z) //if we're going up, we need to find stairs on our z level
+		if(direction == UP && stairs_bro.z != our_turf.z) //if we're going up, we need to find stairs on our z level // CRIMSON EDIT CHANGE ORIGINAL: if(direction == UP && stairs_bro.z != z)
 			continue
-		if(direction == DOWN && stairs_bro.z != z - 1) //if we're going down, we need to find stairs on the z level beneath us
+		if(direction == DOWN && stairs_bro.z != our_turf.z - 1) //if we're going down, we need to find stairs on the z level beneath us // CRIMSON EDIT CHANGE ORIGINAL: if(direction == DOWN && stairs_bro.z != z - 1)
 			continue
-		var/atom/stairs_target = stairs_bro.z == z ? stairs_bro : get_step_multiz(stairs_bro, UP) //if the stairs aren't on our z level, get the turf above them (on our zlevel) to path to instead
+		var/atom/stairs_target = stairs_bro.z == our_turf.z ? stairs_bro : get_step_multiz(stairs_bro, UP) //if the stairs aren't on our z level, get the turf above them (on our zlevel) to path to instead // CRIMSON EDIT CHANGE ORIGINAL: var/atom/stairs_target = stairs_bro.z == z ? stairs_bro : get_step_multiz(stairs_bro, UP)
 		if(stairs_target)
-			distances[stairs_target] = get_dist_euclidean(stairs_target, src)
+			distances[stairs_target] = get_dist_euclidean(stairs_target, our_turf) // CRIMSON EDIT CHANGE ORIGINAL: distances[stairs_target] = get_dist_euclidean(stairs_target, src)
 
 	sortTim(distances, GLOBAL_PROC_REF(cmp_numeric_asc), associative = TRUE)
 	for(var/atom/target as anything in distances)

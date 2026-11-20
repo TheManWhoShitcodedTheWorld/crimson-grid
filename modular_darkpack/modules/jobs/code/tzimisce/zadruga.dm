@@ -1,6 +1,6 @@
 /datum/job/vampire/zadruga
 	title = JOB_ZADRUGA
-	faction = FACTION_SABBAT
+	faction = FACTION_OLD_TZIMISCE // CORVAX EDIT : FACTION_SABBAT>FACTION_OLD_TZIMISCE
 	total_positions = 2
 	spawn_positions = 2
 	supervisors = "законами гостеприимства"

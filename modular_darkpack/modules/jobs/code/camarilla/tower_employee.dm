@@ -32,8 +32,8 @@
 		JOB_HOUND,
 		JOB_TOWERWORK
 	)
-	allowed_splats = list(SPLAT_NONE, SPLAT_GHOUL, SPLAT_KINDRED)
-	allowed_clans = list(VAMPIRE_CLAN_GANGREL, VAMPIRE_CLAN_BRUJAH, VAMPIRE_CLAN_TREMERE, VAMPIRE_CLAN_VENTRUE, VAMPIRE_CLAN_NOSFERATU, VAMPIRE_CLAN_TOREADOR, VAMPIRE_CLAN_MALKAVIAN, VAMPIRE_CLAN_DOMINATE_MALKAVIAN) // CORVAX EDIT v20
+	allowed_splats = list(SPLAT_GHOUL, SPLAT_KINDRED)	//CORVAX EDIT V20
+	allowed_clans = list(VAMPIRE_CLAN_GARGOYLE, VAMPIRE_CLAN_GANGREL, VAMPIRE_CLAN_BRUJAH, VAMPIRE_CLAN_TREMERE, VAMPIRE_CLAN_VENTRUE, VAMPIRE_CLAN_NOSFERATU, VAMPIRE_CLAN_TOREADOR, VAMPIRE_CLAN_MALKAVIAN, VAMPIRE_CLAN_DOMINATE_MALKAVIAN) // CORVAX EDIT v20
 	description = "Вы работаете в Башне Миллениум и так или иначе обслуживаете её администрацию, а может, и вовсе состоите в личных слугах у кого-то из трёх первых лиц. К странностям, которые случается увидеть или услышать по ночам, вы давно привыкли: либо вы и так в курсе дела, либо отшучиваетесь и стараетесь о них не думать."
 	minimum_masquerade = 4
 

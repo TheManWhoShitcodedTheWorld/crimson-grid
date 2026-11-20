@@ -1,7 +1,7 @@
 /datum/antagonist/sabbatist
 	name = "Шабашит"
 	roundend_category = "Шабашиты"
-	antagpanel_category = FACTION_SABBAT
+	antagpanel_category = "Шабаш"
 	pref_flag = ROLE_SABBAT
 	antag_moodlet = /datum/mood_event/revolution
 	antag_hud_name = "pack"

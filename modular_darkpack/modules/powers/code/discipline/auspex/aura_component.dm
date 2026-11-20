@@ -114,6 +114,8 @@
 	switch(current_aura)
 		if(AURA_AFRAID)
 			examine_message = "[parent_mob.ru_p_them(TRUE)] аура горит ярко-оранжевым, напряжённая, дрожащая по краям."
+		if(AURA_CONFIDENCE)
+			examine_message = "[parent_mob.ru_p_them(TRUE)] аура излучает уверенный жёлтый свет."
 		if(AURA_AGGRESSIVE)
 			examine_message = "[parent_mob.ru_p_them(TRUE)] аура налита густым пурпуром и пульсирует, как работающий мотор."
 		if(AURA_ANGRY)

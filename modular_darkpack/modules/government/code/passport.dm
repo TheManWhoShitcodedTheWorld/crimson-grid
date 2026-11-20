@@ -17,6 +17,7 @@
 	desc = "Книжечка с чьей-то фотографией и личными данными. Не потеряйте!"
 	icon = 'modular_darkpack/modules/government/icons/docs.dmi'
 	worn_icon = 'modular_darkpack/modules/clothes/icons/worn.dmi'
+	worn_icon_state = "nothing" // CORVAX EDIT CHANGE - worn.dmi has no passport sprite, fell back to the "!" placeholder. ORIGINAL: worn_icon = 'modular_darkpack/modules/clothes/icons/worn.dmi'
 	icon_state = "passport1"
 	w_class = WEIGHT_CLASS_SMALL
 	slot_flags = ITEM_SLOT_ID

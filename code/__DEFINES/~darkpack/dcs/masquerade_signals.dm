@@ -1,6 +1,7 @@
 // These signals are related to NPC masquerade violation and handling code.
 
 // /datum/proximity_monitor/advanced/violation_check_aoe
+// (violation_reason) - optional text of what witnesses saw, e.g. "пьёт чужую кровь" // CORVAX EDIT ADD - Player Masquerade Witness
 #define COMSIG_MASQUERADE_VIOLATION "masquerade_violation"
 // /datum/component/violation_observer
 #define COMSIG_SEEN_MASQUERADE_VIOLATION "seen_masquerade_violation"

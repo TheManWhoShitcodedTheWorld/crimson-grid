@@ -192,11 +192,14 @@
 	maxHealth = 600
 	health = 600
 	//harm_intent_damage = 8
-	melee_damage_lower = 35
+	melee_damage_lower = 40
 	melee_damage_upper = 60
+	armour_penetration = 75
+	wound_bonus = 15
 	attack_verb_continuous = "жестоко сминает"
 	attack_verb_simple = "жестоко сминает"
 	attack_sound = 'sound/items/weapons/bladeslice.ogg'
+	melee_attack_cooldown = 0.6 SECONDS
 	bloodpool = 15
 	maxbloodpool = 15
 	ai_controller = null // Start with no AI, will be assigned if no player takes it
@@ -205,3 +208,9 @@
 	. = ..()
 	// Make the perfect gargoyle slightly larger
 	transform = transform.Scale(1.10, 1.10)
+	AddComponent(/datum/component/seethrough_mob)
+	AddComponent(
+		/datum/component/amputating_limbs, \
+		surgery_time = 0 SECONDS, \
+		surgery_verb = "rips apart",\
+	)

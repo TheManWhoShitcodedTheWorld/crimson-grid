@@ -120,7 +120,7 @@
 /datum/supply_pack/weapons/weapondeagle
 	name = "Оружие (Desert Eagle)"
 	desc = "Пистолет Desert Eagle."
-	cost = 400
+	cost = 600 // CORVAX EDIT
 	contains = list(/obj/item/gun/ballistic/automatic/pistol/darkpack/deagle, /obj/item/ammo_box/magazine/m44)
 	crate_name = "ящик с оружием"
 
@@ -154,7 +154,7 @@
 /datum/supply_pack/weapons/weaponmac10
 	name = "Оружие (Braddock .45)"
 	desc = "Пистолет-пулемёт Braddock .45."
-	cost = 800
+	cost = 2500 // CORVAX EDIT
 	contains = list(/obj/item/gun/ballistic/automatic/darkpack/mac10, /obj/item/ammo_box/magazine/darkpack45smg)
 	crate_name = "ящик с оружием"
 

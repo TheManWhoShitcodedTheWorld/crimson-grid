@@ -47,10 +47,10 @@
 /obj/structure/retail/attackby(obj/item/I, mob/user, params)
 	. = ..()
 	if(can_shop(user))
-		if(owner_needed == TRUE && (!my_owner || (get_dist(src, my_owner) > 4) || (my_owner.stat >= HARD_CRIT)))
+		if(owner_needed == TRUE && (!my_owner || (get_dist(src, my_owner) > 1) || (my_owner.stat >= HARD_CRIT)))
 			to_chat(user, span_alert("За прилавком никого нет, продать вам что-то некому..."))
 			return
-		else if(owner_needed == TRUE && my_owner && get_dist(src, my_owner) <= 4)
+		else if(owner_needed == TRUE && my_owner && get_dist(src, my_owner) <= 1)
 			my_owner.say(pick(my_owner.socialrole.random_phrases))
 		ui_interact(user)
 
@@ -71,7 +71,7 @@
 	if(owner_needed == TRUE)
 		if(!my_owner)
 			return
-		if(get_dist(src, my_owner) > 4)
+		if(get_dist(src, my_owner) > 1)
 			return
 		if(my_owner.stat >= HARD_CRIT)
 			return
@@ -139,7 +139,7 @@
 	if(.)
 		return
 
-	if(owner_needed == TRUE && (!my_owner || (get_dist(src, my_owner) > 4) || (my_owner.stat >= HARD_CRIT)))
+	if(owner_needed == TRUE && (!my_owner || (get_dist(src, my_owner) > 1) || (my_owner.stat >= HARD_CRIT)))
 		to_chat(usr, span_alert("За прилавком никого нет, продать вам что-то некому..."))
 		return
 

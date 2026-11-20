@@ -477,13 +477,28 @@
 		return
 
 	var/datum/blood_type/blood_type = get_bloodtype()
-	if(!(blood_type.reagent_type in typesof(chem.type))) // DARKPACK EDIT CHANGE - ORIGINAL: if(blood_type.reagent_type != chem.type)
+	if(!blood_type)
+		return
+
+	var/is_blood = (blood_type.reagent_type in typesof(chem.type))
+
+	if(HAS_TRAIT(src, TRAIT_LIVERLESS_METABOLISM) && !is_blood && !(methods & INJECT))
+		reagents.remove_reagent(chem.type, reac_volume)
+
+		var/obj/item/organ/stomach/belly = get_organ_slot(ORGAN_SLOT_STOMACH)
+		if(belly)
+			belly.reagents.remove_reagent(chem.type, reac_volume)
+
+		return COMPONENT_NO_EXPOSE_REAGENTS
+
+	if(!is_blood)
 		return
 
 	var/cached_blood_volume = get_blood_volume()
 
 	var/blood_added = adjust_blood_volume(round(reac_volume, CHEMICAL_VOLUME_ROUNDING))
-	reagents.remove_reagent(chem.type, blood_added)
+
+	reagents.remove_reagent(chem.type, round(reac_volume, CHEMICAL_VOLUME_ROUNDING))
 
 	if(chem.data?[BLOOD_DATA_SYNTH_CONTENT] && !IS_BLOOD_ALWAYS_SYNTHETIC(src))
 		var/added_synth_volume = blood_added * chem.data[BLOOD_DATA_SYNTH_CONTENT]
@@ -738,7 +753,9 @@
 	if(liver)
 		return
 
+	/* // CORVAX EDIT REMOVAL - same per tick restart as in the liver
 	reagents.end_metabolization(src, keep_liverless = TRUE) //Stops trait-based effects on reagents, to prevent permanent buffs
+	*/
 	reagents.metabolize(src, seconds_per_tick, can_overdose = TRUE, liverless = TRUE)
 
 	if(HAS_TRAIT(src, TRAIT_STABLELIVER) || HAS_TRAIT(src, TRAIT_LIVERLESS_METABOLISM))

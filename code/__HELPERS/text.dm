@@ -374,6 +374,15 @@
 /proc/capitalize(t)
 	. = t
 	if(t)
+		// CORVAX EDIT ADD START - a leading "\proper"/"\improper" macro (Russian lowercase names) was split and ate the first letter
+		// Text macros begin with a byte that is not valid UTF-8; text2ascii() reports it as U+FFFD (the "replacement character")
+		// Ordinary strings skip the search entirely
+		if(text2ascii(t, 1) == 0xFFFD)
+			var/static/list/text_macros = list("\proper", "\improper")
+			for(var/macro in text_macros)
+				if(findtext(t, macro, 1, length(macro) + 1))
+					return macro + capitalize(copytext(t, length(macro) + 1))
+		// CORVAX EDIT ADD END
 		. = t[1]
 		return uppertext(.) + copytext(t, 1 + length(.))
 

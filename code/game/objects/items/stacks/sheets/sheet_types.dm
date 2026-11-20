@@ -134,7 +134,7 @@ GLOBAL_LIST_INIT(metal_recipes, list ( \
 	table_type = /obj/structure/table
 	material_type = /datum/material/iron
 	matter_amount = 4
-	cost = SHEET_MATERIAL_AMOUNT
+	cost = 1 // SHEET_MATERIAL_AMOUNT // CORVAX EDIT
 	source = /datum/robot_energy_storage/material/iron
 	stairs_type = /obj/structure/stairs
 	sniffable = TRUE
@@ -409,7 +409,7 @@ GLOBAL_LIST_INIT(wood_recipes, list ( \
 // CRIMSON EDIT ADD START - Sell Wood
 /obj/item/stack/sheet/mineral/wood/Initialize(mapload, new_amount, merge = TRUE, list/mat_override = null, mat_amt = 1)
 	. = ..()
-	AddComponent(/datum/component/selling, 5, "wood", FALSE)
+	AddComponent(/datum/component/selling, 0, "wood", FALSE) // CORVAX EDIT
 // CRIMSON EDIT ADD END - Sell Wood
 
 /*

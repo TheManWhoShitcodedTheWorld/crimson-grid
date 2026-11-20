@@ -8,6 +8,7 @@
 	owner_needed = FALSE
 	desc = "Ваши демонические познания позволяют просить милостей у Инфернальных сил."
 	name = "Infernal Rune"
+	resistance_flags = INDESTRUCTIBLE // CORVAX EDIT ADD
 
 	products_list = list(
 	// SPELLBOOKS
@@ -23,11 +24,11 @@
 	new /datum/data/vending_product("Гримуар Огней Преисподней (уровень IV)",	/obj/item/path_spellbook/fires_of_inferno/level4,	240),
 	new /datum/data/vending_product("Гримуар Огней Преисподней (уровень V)",	/obj/item/path_spellbook/fires_of_inferno/level5, 270),
 
-	new /datum/data/vending_product("Taking of Spirit Spellbook (Level I)",	/obj/item/path_spellbook/taking_of_spirit/level1,	130),
-	new /datum/data/vending_product("Taking of Spirit Spellbook (Level II)",	/obj/item/path_spellbook/taking_of_spirit/level2,	180),
-	new /datum/data/vending_product("Taking of Spirit Spellbook (Level III)",	/obj/item/path_spellbook/taking_of_spirit/level3,	210),
-	new /datum/data/vending_product("Taking of Spirit Spellbook (Level IV)",	/obj/item/path_spellbook/taking_of_spirit/level4,	240),
-	new /datum/data/vending_product("Taking of Spirit Spellbook (Level V)",	/obj/item/path_spellbook/taking_of_spirit/level5, 270),
+	new /datum/data/vending_product("Гримуар Лишения Духа (уровень I)",	/obj/item/path_spellbook/taking_of_spirit/level1,	130),
+	new /datum/data/vending_product("Гримуар Лишения Духа (уровень II)",	/obj/item/path_spellbook/taking_of_spirit/level2,	180),
+	new /datum/data/vending_product("Гримуар Лишения Духа (уровень III)",	/obj/item/path_spellbook/taking_of_spirit/level3,	210),
+	new /datum/data/vending_product("Гримуар Лишения Духа (уровень IV)",	/obj/item/path_spellbook/taking_of_spirit/level4,	240),
+	new /datum/data/vending_product("Гримуар Лишения Духа (уровень V)",	/obj/item/path_spellbook/taking_of_spirit/level5, 270),
 
 	// ARTIFACTS
 	// Lower tier artifacts
@@ -54,16 +55,15 @@
 		return human_user.get_discipline(/datum/discipline/daimonion)
 
 /obj/structure/retail/occult/baali/proc/calculate_favor(mob/living/carbon/human/sacrificed)
-	var/favor = 25
-	if(get_kindred_splat(sacrificed))
+	var/favor = 50
+	var/splat = sacrificed.client.prefs.read_preference(/datum/preference/choiced/splats)
+	if(ispath(splat, /datum/splat/vampire/kindred))
 		favor = ((GHOUL_GENERATION - clamp(sacrificed.get_generation(), 1, 17)) * 8 + 78) //the '8+78' creates a linear scale based on generation with 8 being 150 favor, 13th being 100 favor, and 16th being 78 favor.
-	if(get_garou_splat(sacrificed) || get_corax_splat(sacrificed))
+	if(ispath(splat, /datum/splat/werewolf/shifter))
 		favor = 100
-	if(get_ghoul_splat(sacrificed))
-		favor = 50
 	return favor * FAVOR_MULTIPLIER
 
-/obj/structure/retail/occult/baali/attackby(obj/item/I, mob/user, params)
+/obj/structure/retail/occult/baali/attack_hand(mob/living/user, list/modifiers)
 	. = ..()
 	if(can_shop(user))
 		var/sacrifice = FALSE
@@ -71,7 +71,7 @@
 		if(ishuman(user))
 			var/mob/living/carbon/human/human_user = user
 			for(var/mob/living/carbon/human/sacrificed_human in get_turf(src))
-				if(sacrificed_human.stat < HARD_CRIT)
+				if(sacrificed_human.stat != SOFT_CRIT && sacrificed_human.stat != HARD_CRIT)
 					continue
 				if(!sacrificed_human.mind)
 					upset = TRUE
@@ -84,10 +84,14 @@
 					if(HAS_TRAIT_FROM(sacrificed_human, TRAIT_AURA_OF_INFERNO, DAIMONION_TRAIT))
 						to_chat(sacrificed_human, span_userdanger("ВАШУ ДУШУ УТАСКИВАЮТ В ПРЕИСПОДНЮЮ!"))
 						sacrificed_human.dust(drop_items = TRUE)
+						var/mob/dead/new_player/player = new()
+						player.ckey = sacrificed_human.ckey
+						qdel(sacrificed_human)
 						continue
 					to_chat(sacrificed_human, span_userdanger("ЧТО-ТО РВЁТ ВАШУ ДУШУ НА ЧАСТИ! КАКАЯ БОЛЬ!"))
 					sacrificed_human.forceMove(spawn_point)
 					ADD_TRAIT(sacrificed_human, TRAIT_AURA_OF_INFERNO, DAIMONION_TRAIT)
+					ADD_TRAIT(sacrificed_human, TRAIT_BEACON_OF_THE_UNHOLY, DAIMONION_TRAIT)
 					SEND_SIGNAL(sacrificed_human, COMSIG_MOB_UPDATE_AURA)
 					sacrificed_human.AdjustSleeping(5 SECONDS)
 					addtimer(CALLBACK(src, PROC_REF(on_wake_up), sacrificed_human), 5 SECONDS)
@@ -95,6 +99,9 @@
 					log_admin("[key_name(sacrificed_human)] has been sacrificed the first time on baali rune by [key_name(user)].")
 				else
 					sacrificed_human.dust(drop_items = TRUE)
+					var/mob/dead/new_player/player = new()
+					player.ckey = sacrificed_human.ckey
+					qdel(sacrificed_human)
 				sacrifice = TRUE
 			if(upset)
 				to_chat(human_user, span_warning("ИНФЕРНАЛЬНЫМ СИЛАМ НУЖНЫ ТОЛЬКО РАЗУМНЫЕ СОЗДАНИЯ!"))

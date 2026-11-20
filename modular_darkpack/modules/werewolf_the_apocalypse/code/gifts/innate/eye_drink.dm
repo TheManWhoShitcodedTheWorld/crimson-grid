@@ -49,7 +49,7 @@
 			return TRUE
 
 	to_chat(owner, span_notice("Вы выпиваете глаза [human_target.declent_ru(GENITIVE)], и ваш разум заполняет видение..."))
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "выпивает глаза мертвеца") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 
 	var/deathdesc
 	if(prompting_mob)

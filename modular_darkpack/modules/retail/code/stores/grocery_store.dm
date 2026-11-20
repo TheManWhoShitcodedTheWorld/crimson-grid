@@ -1,6 +1,7 @@
 /obj/structure/retail/grocery_store
 	desc = "Небольшой продуктовый магазин."
 	products_list = list(
+		new /datum/data/vending_product("Жвачка", /obj/item/storage/box/gum, 5),
 		new /datum/data/vending_product("Шоколадный батончик", /obj/item/food/chocolatebar),
 		new /datum/data/vending_product("Чипсы", /obj/item/food/chips),
 		new /datum/data/vending_product("Бутылка воды", /obj/item/reagent_containers/cup/glass/vampirewater),

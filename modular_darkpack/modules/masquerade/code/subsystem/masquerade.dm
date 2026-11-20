@@ -99,7 +99,7 @@ SUBSYSTEM_DEF(masquerade)
 /datum/controller/subsystem/masquerade/proc/masquerade_reinforce(atom/source, mob/living/player_breacher)
 	. = FALSE
 	for(var/masquerade_breach in masquerade_breachers)
-		var/breach_sources = masquerade_breach[2]
+		var/breach_sources = masquerade_breach[MASQUERADE_BREACH_WITNESSES] // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: var/breach_sources = masquerade_breach[2]
 
 		var/source_matches = FALSE
 		// breach_sources can be a list if there is more than one blood skull, handle for that
@@ -108,7 +108,10 @@ SUBSYSTEM_DEF(masquerade)
 		else
 			source_matches = (source == breach_sources)
 
-		if(source_matches)
+		// CORVAX EDIT ADD START - Player Masquerade Witness
+		// A witness can hold breaches against several people; match both parties.
+		// CORVAX EDIT ADD END - Player Masquerade Witness
+		if(source_matches && masquerade_breach[MASQUERADE_BREACH_BREACHER] == player_breacher) // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: if(source_matches)
 			masquerade_breachers -= list(masquerade_breach)
 			masquerade_level = min(MASQUERADE_MAX_LEVEL, masquerade_level + 1)
 			player_breacher.masquerade_score = min(5, player_breacher.masquerade_score + 1)

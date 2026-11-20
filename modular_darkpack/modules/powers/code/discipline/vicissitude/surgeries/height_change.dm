@@ -47,7 +47,7 @@
 	if(!IN_GIVEN_RANGE(surgeon, patient, 1))
 		return FALSE
 	patient.set_mob_height(new_height)
-	SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION)
 	playsound(patient, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 
 	display_results(

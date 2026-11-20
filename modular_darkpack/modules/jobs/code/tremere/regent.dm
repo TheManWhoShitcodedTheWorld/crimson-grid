@@ -1,6 +1,6 @@
 /datum/job/vampire/regent
 	title = JOB_CHANTRY_REGENT
-	faction = FACTION_CAMARILLA
+	faction = FACTION_TREMERE // CORVAX EDIT : FACTION_CAMARILLA>FACTION_TREMERE
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = SUPERVISOR_CAMARILLA

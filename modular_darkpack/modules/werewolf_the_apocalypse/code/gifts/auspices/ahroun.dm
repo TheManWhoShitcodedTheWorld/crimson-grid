@@ -26,7 +26,7 @@
 		victim.Knockdown(3 SECONDS) //CRIMSON GRID EDIT - original victim.Knockdown(1 TURNS)
 		victim.Immobilize(3 SECONDS) //CRIMSON GRID EDIT - original victim.Immobilize(1 TURNS)
 		playsound(caster, 'modular_darkpack/modules/werewolf_the_apocalypse/sounds/gifts/falling_touch_activate.ogg', 75, FALSE) // red-tailed hawk sound mixed with disintegrate.ogg
-		SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+		SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "сбивает человека с ног одним касанием") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 		if(holding)
 			victim.attackby(holding, caster)
 		else

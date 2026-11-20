@@ -1,11 +1,12 @@
 /datum/discipline/temporis
 	name = "Темпорис"
+	// CORVAX EDIT CHANGE - Temporis tooltip - ORIGINAL: all five power entries were labelled "пассивно".
 	desc = {"Темпорис - Дисциплина, которой владеют лишь Истинные Бруха. Считается, что это отточенная до совершенства Стремительность: каинит обретает власть над самим течением времени.
-● Песочные часы разума: пассивно
-●● Ретроспектива: пассивно
-●●● Замедление времени: пассивно
-●●●● Терпение Норн: пассивно
-●●●●● Дар Клото: пассивно"}
+● Песочные часы разума: Восприятие + Шестое чувство (пассивно)
+●● Ретроспектива: без проверки
+●●● Замедление времени: без проверки
+●●●● Терпение Норн: без проверки
+●●●●● Дар Клото: без проверки"}
 	icon_state = "temporis"
 	clan_restricted = TRUE
 	power_type = /datum/discipline_power/temporis
@@ -21,7 +22,12 @@
 
 /datum/discipline_power/temporis/activate()
 	. = ..()
-	ADD_TRAIT(owner, TRAIT_TIMEWARPER, DISCIPLINE_TRAIT(type))
+	// CORVAX EDIT CHANGE START - Hourglass only perceives time; higher powers disturb it.
+	// ORIGINAL: ADD_TRAIT(owner, TRAIT_TIMEWARPER, DISCIPLINE_TRAIT(type))
+	if(. && level > 1)
+		ADD_TRAIT(owner, TRAIT_TIMEWARPER, DISCIPLINE_TRAIT(type))
+		notify_time_sense()
+	// CORVAX EDIT CHANGE END
 
 /datum/discipline_power/temporis/proc/celerity_explode(datum/source, datum/discipline_power/power, atom/target)
 	SIGNAL_HANDLER
@@ -38,38 +44,20 @@
 //HOURGLASS OF THE MIND
 /datum/discipline_power/temporis/hourglass_of_the_mind
 	name = "Песочные часы разума"
-	desc = "Безупречное чувство времени. Вы всегда точно знаете, который сейчас час."
+	desc = "Вы безошибочно чувствуете ход времени и улавливаете отголоски чужого вмешательства в его течение." // CORVAX EDIT CHANGE - ORIGINAL: desc = "Безупречное чувство времени. Вы всегда точно знаете, который сейчас час."
 
 	level = 1
 	check_flags = DISC_CHECK_CONSCIOUS
 	vitae_cost = 0
 
-/datum/discipline_power/temporis/hourglass_of_the_mind/post_gain()
+/datum/discipline_power/temporis/hourglass_of_the_mind/post_gain(post_gain_applied)
 	ADD_TRAIT(owner, TRAIT_TIME_SENSE, DISCIPLINE_TRAIT(type))
 
-/datum/discipline_power/temporis/hourglass_of_the_mind/activate()
-	. = ..()
-	to_chat(owner, "<b>[server_timestamp("hh:mm:ss", ic_time = TRUE, twelve_hour_clock = owner.client?.prefs.read_preference(/datum/preference/toggle/twelve_hour))]</b>")
+/datum/discipline_power/temporis/hourglass_of_the_mind/post_loss()
+	REMOVE_TRAIT(owner, TRAIT_TIME_SENSE, DISCIPLINE_TRAIT(type))
+	return ..()
 
-	// Check range for targets with that have warped time this round and display them, if any exist
-	var/list/targets = list()
-	for(var/mob/living/carbon/human/target in view(range, owner))
-		if(target == owner)
-			continue
-		if(HAS_TRAIT(target, TRAIT_TIMEWARPER))
-			targets += target
-	if(targets.len)
-		var/target_list = ""
-		for(var/i = 1 to targets.len)
-			var/mob/living/carbon/human/target = targets[i]
-			target_list += target.name
-			if(i < targets.len - 1)
-				target_list += ", "
-			else if(i == targets.len - 1)
-				target_list += " и "
-		to_chat(owner, span_notice("Временные искажения окружают: [english_list(targets)]."))
-	else
-		to_chat(owner, span_notice("Поблизости нет временных искажений."))
+// CORVAX EDIT REMOVAL - The old active timewarper scan is replaced by passive sensing and a read-only clock in modular_corvax/modules/temporis/code/hourglass.dm.
 
 //RECURRING CONTEMPLATION
 /datum/discipline_power/temporis/recurring_contemplation
@@ -158,7 +146,7 @@
 
 	new /obj/effect/temporis/patience_of_the_norns(owner.loc, owner)
 
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "двигается с нечеловеческой скоростью") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 
 //CLOTHOS GIFT
 /datum/discipline_power/temporis/clothos_gift
@@ -194,7 +182,7 @@
 
 	new /obj/effect/temporis/clothos_gift(owner.loc, owner)
 
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "двигается с нечеловеческой скоростью") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 
 /datum/movespeed_modifier/temporis5
 	multiplicative_slowdown = -2.5

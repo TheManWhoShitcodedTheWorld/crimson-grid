@@ -32,8 +32,8 @@
 		JOB_SWEEPER,
 		JOB_TAPSTER
 	)
-	allowed_splats = list(SPLAT_NONE, SPLAT_GHOUL)
-	splat_slots = list(SPLAT_NONE = 2, SPLAT_GHOUL = 2)
+	allowed_splats = list(SPLAT_GHOUL)	//CORVAX EDIT V20
+	// splat_slots = list(SPLAT_NONE = 2, SPLAT_GHOUL = 2)	//CORVAX EDIT V20
 	description = "Вы стоите за стойкой местного байкерского бара. Наливайте разношёрстной публике, которая сюда заглядывает, и постарайтесь не задавать лишних вопросов."
 	minimum_masquerade = 0
 

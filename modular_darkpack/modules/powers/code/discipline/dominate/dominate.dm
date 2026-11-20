@@ -7,19 +7,20 @@
 ●● Внушение: Манипуляция + Лидерство
 ●●● Забвение: Смекалка + Хитрость
 ●●●● Порабощение: Обаяние + Лидерство
-●●●●● Вселение: Обаяние + Запугивание"}
+●●●●● Вселение: Обаяние + Запугивание
+●●●●● ● Власть над телом: Обаяние + Лидерство"}	// CORVAX EDIT
 	icon_state = "dominate"
 	power_type = /datum/discipline_power/dominate
 	var/list/botched_targets //a lazylist of weakrefs
 
-/datum/discipline/dominate/post_gain()
+/datum/discipline/dominate/post_gain(post_gain_applied)
 	. = ..()
 	if(level >= 4)
 		RegisterSignal(owner, COMSIG_MOB_EMOTE, PROC_REF(on_snap))
 
 /datum/discipline/dominate/post_loss()
-	. = ..()
 	UnregisterSignal(owner, COMSIG_MOB_EMOTE)
+	return ..()
 
 /datum/discipline/dominate/proc/on_snap(atom/source, datum/emote/emote_args)
 	SIGNAL_HANDLER
@@ -38,21 +39,25 @@
 				target.SetSleeping(0)
 				target.dir = get_dir(target, owner)
 				target.emote("me", 1, "внимательно поворачивается к <b>[owner.declent_ru(DATIVE)]</b>.", TRUE)
-				to_chat(target, span_danger("ВНИМАНИЕ"))
+				to_chat(target, span_phobia("ВНИМАНИЕ"))
+				target.dominate_feedback("ВНИМАНИЕ") // CORVAX EDIT
 			if("snap2")
 				target.dir = get_dir(target, owner)
 				target.Immobilize(50)
 				target.emote("me",1,"вздрагивает от щелчка пальцев <b>[owner.declent_ru(GENITIVE)]</b>.", TRUE)
-				to_chat(target, span_danger("СТОЯТЬ"))
+				to_chat(target, span_phobia("СТОЯТЬ"))
+				target.dominate_feedback("СТОЯТЬ") // CORVAX EDIT
 			if("snap3")
 				target.Knockdown(50)
 				target.Immobilize(80)
 				target.emote("me",1,"оседает на подкосившихся коленях.",TRUE)
 				target.do_jitter_animation(0.1 SECONDS)
-				to_chat(target, span_danger("ЛЕЖАТЬ"))
+				to_chat(target, span_phobia("ЛЕЖАТЬ"))
+				target.dominate_feedback("ЛЕЖАТЬ") // CORVAX EDIT
 			if("whistle")
 				target.apply_status_effect(STATUS_EFFECT_AWE, owner)
-				to_chat(target, span_danger("КО МНЕ"))
+				to_chat(target, span_phobia("КО МНЕ"))
+				target.dominate_feedback("КО МНЕ") // CORVAX EDIT
 
 
 /datum/discipline_power/dominate
@@ -75,7 +80,7 @@
 
 	//dominate compels the target to have their gaze absolutely entrapped by the dominator
 	dominate_target.face_atom(owner)
-	to_chat(dominate_target, span_danger("Взгляд [owner.declent_ru(GENITIVE)] приковывает вас целиком. Вы не в силах ни отвести глаза, ни позвать на помощь, ни хотя бы попытаться сопротивляться. Молитесь, чтобы кто-нибудь пришёл на выручку и оттащил или оттолкнул вас."))
+	to_chat(dominate_target, span_phobia("Взгляд [owner.declent_ru(GENITIVE)] приковывает вас целиком. Вы не в силах ни отвести глаза, ни позвать на помощь, ни хотя бы попытаться сопротивляться. Молитесь, чтобы кто-нибудь пришёл на выручку и оттащил или оттолкнул вас."))	// CORVAX EDIT
 	owner.face_atom(dominate_target)
 	addtimer(CALLBACK(dominate_target, TYPE_PROC_REF(/mob/living/carbon/human, post_dominate_checks), dominate_target), 2 SECONDS)
 	return TRUE
@@ -114,7 +119,11 @@
 		else
 			return TRUE
 
-	var/theirpower = target.st_get_stat(STAT_TEMPORARY_WILLPOWER)
+	var/theirpower = target.st_get_stat(STAT_PERMANENT_WILLPOWER)	// CORVAX EDIT
+
+	if(HAS_TRAIT(target, TRAIT_IN_FRENZY))	// CORVAX EDIT
+		to_chat(owner, span_warning("Зверь в [target.declent_ru(PREPOSITIONAL)] не подчиняется Доминированию — цель в Ярости."))
+		return FALSE
 
 	if(HAS_TRAIT(target, TRAIT_IRON_WILL))
 		theirpower += 3
@@ -126,14 +135,14 @@
 	if(HAS_TRAIT(target, TRAIT_WEAK_WILLED))
 		theirpower -= 2
 
-	if(HAS_TRAIT(target, TRAIT_IN_FRENZY))
-		theirpower += 2
-
 	if((!(owner.obscured_slots & HIDEFACE))&(HAS_TRAIT(owner, TRAIT_DISFIGURED_APPEARANCE))) // Are we visibly disfigured?
 		theirpower += 2
 
 	if(HAS_TRAIT(owner, TRAIT_ENCHANTING_VOICE))
 		theirpower -= 2
+
+	if(HAS_TRAIT(target, TRAIT_TRUE_FAITH))	// CORVAX EDIT
+		theirpower += 15
 
 	if(!get_kindred_splat(target)) // Is our target mortal?
 		if(HAS_TRAIT(owner, TRAIT_GRAVE_SMELL)) // Are we stinky?
@@ -186,6 +195,7 @@
 //dominate involves capturing the victim's gaze, leaving them completely helpless as you hypnotically invade their mind.
 /datum/discipline_power/dominate/proc/immobilize_target(mob/living/carbon/human/target, duration = 5 SECONDS)
 	ADD_TRAIT(target, TRAIT_IMMOBILIZED, TRAIT_GENERIC)
+	target.dominate_feedback("Взгляд сковал вас!") // CORVAX EDIT
 	ADD_TRAIT(target, TRAIT_PACIFISM, "dominate") // CRIMSON EDIT ADD - DOM PACIFY
 	RegisterSignals(target, list(COMSIG_ATOM_ATTACKBY, COMSIG_MOB_ITEM_ATTACK, COMSIG_PROJECTILE_PREHIT), PROC_REF(on_target_attacked))
 	if(do_after(owner, duration, target))
@@ -200,16 +210,23 @@
 	var/mob/living/carbon/human/target = source
 	release_target(target)
 	to_chat(owner, span_warning("На [target.declent_ru(ACCUSATIVE)] напали, и ваша сосредоточенность нарушена!"))
-	to_chat(target, span_warning("На вас напали, и чужая хватка на вашем разуме разжимается!"))
+	to_chat(target, span_phobia("На вас напали, и чужая хватка на вашем разуме разжимается!"))	// CORVAX EDIT
 
 /datum/discipline_power/dominate/proc/release_target(mob/living/carbon/human/target)
 	UnregisterSignal(target, list(COMSIG_ATOM_ATTACKBY, COMSIG_MOB_ITEM_ATTACK, COMSIG_PROJECTILE_PREHIT))
-	to_chat(target, span_danger("Ваши мысли снова принадлежат вам, и от властного взгляда наконец можно отвести глаза."))
+	to_chat(target, span_phobia("Ваши мысли снова принадлежат вам, и от властного взгляда наконец можно отвести глаза."))	// CORVAX EDIT
 	REMOVE_TRAIT(target, TRAIT_IMMOBILIZED, TRAIT_GENERIC)
 	REMOVE_TRAIT(target, TRAIT_PACIFISM, "dominate") // CRIMSON EDIT ADD - DOM PACIFY
 
 /mob/living/carbon/human/proc/post_dominate_checks(mob/living/carbon/human/dominate_target)
 	dominate_target?.remove_overlay(POWERS_LAYER)
+
+// CRIMSON EDIT ADD START - Dominate Feedback
+/// Combat-visible Dominate cue: purple screen flash plus floating text above the victim, shown only to the victim.
+/mob/living/carbon/human/proc/dominate_feedback(text)
+	flash_color(src, "#b066ff", 2 SECONDS)
+	balloon_alert(src, html_encode(text))
+// CRIMSON EDIT ADD END - Dominate Feedback
 
 //COMMAND
 /datum/discipline_power/dominate/command
@@ -260,7 +277,7 @@
 		return TRUE
 
 	to_chat(owner, span_warning("[capitalize(target.declent_ru(NOMINATIVE))] сопротивляется вашему Доминированию!"))
-	to_chat(target, span_warning("[capitalize(owner.declent_ru(NOMINATIVE))] пристально смотрит на вас."))
+	to_chat(target, span_phobia("[capitalize(owner.declent_ru(NOMINATIVE))] пристально смотрит на вас."))	// CORVAX EDIT
 	do_cooldown(TRUE)
 	return FALSE
 
@@ -268,9 +285,10 @@
 	. = ..()
 	to_chat(owner, span_warning("Вы подчинили себе разум [target.declent_ru(GENITIVE)]!"))
 	log_combat(owner, target, "Dominated with Command: [custom_command]")
-	to_chat(target, span_big("[custom_command]"))
+	to_chat(target, span_phobia("[custom_command]"))
+	target.dominate_feedback("Приказ: [custom_command]") // CORVAX EDIT
 	var/command_strength = get_success_message(successes)
-	to_chat(target, span_warning("[capitalize(owner.declent_ru(NOMINATIVE))] подчиняет ваш разум (успехов: [successes]). Вы не в силах ослушаться приказа \"[custom_command]\". Сила воздействия: [command_strength]."))
+	to_chat(target, span_phobia("[capitalize(owner.declent_ru(NOMINATIVE))] подчиняет ваш разум (успехов: [successes]). Вы не в силах ослушаться приказа \"[custom_command]\". Сила воздействия: [command_strength]."))	// CORVAX EDIT
 	SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
 
 // MESMERIZE
@@ -308,7 +326,7 @@
 	pulse_interval = 0
 
 	to_chat(owner, span_warning("[capitalize(target.declent_ru(NOMINATIVE))] сопротивляется вашему Доминированию!"))
-	to_chat(target, span_warning("[capitalize(owner.declent_ru(NOMINATIVE))] пристально смотрит на вас."))
+	to_chat(target, span_phobia("[capitalize(owner.declent_ru(NOMINATIVE))] пристально смотрит на вас."))
 
 	do_cooldown(cooldown_length)
 	return FALSE
@@ -322,8 +340,9 @@
 	log_combat(owner, target, "Dominated with Mesmerize: [custom_message]")
 	to_chat(owner, span_warning("Вы заложили гипнотическое внушение в разум [target.declent_ru(GENITIVE)]!"))
 	owner.say(custom_message)
-	to_chat(target, span_info("В вашем разуме засела настойчивая мысль, идущая откуда-то из подсознания. Вы не понимаете, откуда она взялась, но она пульсирует снова и снова и подчиняет себе все остальные мысли."))
+	to_chat(target, span_phobia("В вашем разуме засела настойчивая мысль, идущая откуда-то из подсознания. Вы не понимаете, откуда она взялась, но она пульсирует снова и снова и подчиняет себе все остальные мысли."))	// CORVAX EDIT
 	to_chat(target, span_hypnophrase(custom_message))
+	target.dominate_feedback(custom_message) // CORVAX EDIT
 	SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
 	current_target_ref = WEAKREF(target)
 	ADD_TRAIT(target, TRAIT_MESMERIZED, TRAIT_GENERIC)
@@ -351,13 +370,14 @@
 		cleanup_mesmerization()
 		return
 
-	to_chat(target, span_hypnophrase("<font size='4'><b>[custom_message]</b></font>"))
+	to_chat(target, span_hypnophrase("<b>[custom_message]</b>"))	// CORVAX EDIT
 	SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg', volume = 30))
+	target.dominate_feedback(custom_message) // CORVAX EDIT
 
 	//once its pulsed 5 times, end the mesmerization. we don't need people seeing 'shit yourself' every minute til roundend.
 	if(pulse_count >= 5)
 		REMOVE_TRAIT(target, TRAIT_MESMERIZED, TRAIT_GENERIC)
-		to_chat(target, span_notice("Пульсация внушённой мысли стихает: то ли мысль пустила корни, то ли тихо угасла. Сознание понемногу возвращается в обычное состояние."))
+		to_chat(target, span_phobia("Пульсация внушённой мысли стихает: то ли мысль пустила корни, то ли тихо угасла. Сознание понемногу возвращается в обычное состояние."))	// CORVAX EDIT
 		cleanup_mesmerization()
 		return
 
@@ -372,7 +392,7 @@
 	pulse_active = FALSE
 	REMOVE_TRAIT(current_target, TRAIT_MESMERIZED, TRAIT_GENERIC)
 	to_chat(current_target, span_hypnophrase("<font size='4'><b>[custom_message]</b></font>"))
-	to_chat(current_target, span_notice("Пульсация внушённой мысли стихает: то ли мысль пустила корни, то ли тихо угасла. Сознание понемногу возвращается в обычное состояние."))
+	to_chat(current_target, span_phobia("Пульсация внушённой мысли стихает: то ли мысль пустила корни, то ли тихо угасла. Сознание понемногу возвращается в обычное состояние."))	// CORVAX EDIT
 	current_target.clear_alert("mesmerize")
 	cleanup_mesmerization()
 
@@ -444,7 +464,7 @@
 			return FALSE
 		return TRUE
 	to_chat(owner, span_warning("[capitalize(target.declent_ru(NOMINATIVE))] сопротивляется вашему Доминированию!"))
-	to_chat(target, span_warning("[capitalize(owner.declent_ru(NOMINATIVE))] пристально смотрит на вас."))
+	to_chat(target, span_phobia("[capitalize(owner.declent_ru(NOMINATIVE))] пристально смотрит на вас."))	// CORVAX EDIT
 	do_cooldown(cooldown_length)
 	return FALSE
 
@@ -457,10 +477,11 @@
 	to_chat(owner, span_warning("Вы вторглись в разум [target.declent_ru(GENITIVE)] и изменили [target.ru_p_them()] воспоминания!"))
 	owner.say(custom_memory, forced = FALSE, bubble_type = SPEECH_BUBBLE_TYPE)
 	to_chat(target, span_hypnophrase(custom_memory))
+	target.dominate_feedback("Ваша память изменена") // CORVAX EDIT
 	SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
 	SEND_SIGNAL(target, COMSIG_ALL_MASQUERADE_REINFORCE)
 	var/mindwipe_strength = get_success_message(successes)
-	to_chat(target, span_warning("[capitalize(owner.declent_ru(NOMINATIVE))] подчиняет ваш разум (успехов: [successes]). Сила гипноза такова: [mindwipe_strength]."))
+	to_chat(target, span_phobia("[capitalize(owner.declent_ru(NOMINATIVE))] подчиняет ваш разум (успехов: [successes]). Сила гипноза такова: [mindwipe_strength]."))	// CORVAX EDIT
 
 // CONDITIONING
 /datum/discipline_power/dominate/conditioning
@@ -484,15 +505,16 @@
 /datum/discipline_power/dominate/conditioning/activate(mob/living/carbon/human/target)
 	. = ..()
 	target.dir = get_dir(target, owner)
-	to_chat(target, span_danger("СМОТРИ НА МЕНЯ"))
+	to_chat(target, span_phobia("СМОТРИ НА МЕНЯ"))	// CORVAX EDIT
 	owner.say("Смотри на меня.")
 	if(!immobilize_target(target, 20 SECONDS))
 		to_chat(owner, span_warning("Ваша сосредоточенность нарушена!"))
-		to_chat(target, span_notice("Гнетущее чужое присутствие внезапно покидает ваш разум."))
+		to_chat(target, span_phobia("Гнетущее чужое присутствие внезапно покидает ваш разум."))	// CORVAX EDIT
 		return
 	target.conditioner = WEAKREF(owner)
 	target.throw_alert("conditioning", /atom/movable/screen/alert/conditioning)
 	to_chat(target, span_hypnophrase("Все ваши мысли занимает [owner.declent_ru(NOMINATIVE)]. Каждое [owner.ru_p_them()] слово, каждый жест полны для вас огромного значения."))
+	target.dominate_feedback("Вы порабощены") // CORVAX EDIT
 	SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
 
 // POSSESSION
@@ -519,14 +541,14 @@
 	var/roll_success = dominate_check(owner, target, list(STAT_CHARISMA, STAT_INTIMIDATION))
 	if(!roll_success)
 		to_chat(owner, span_warning("[capitalize(target.declent_ru(NOMINATIVE))] сопротивляется вашему Доминированию!"))
-		to_chat(target, span_warning("[capitalize(owner.declent_ru(NOMINATIVE))] пристально смотрит на вас."))
+		to_chat(target, span_phobia("[capitalize(owner.declent_ru(NOMINATIVE))] пристально смотрит на вас."))	// CORVAX EDIT
 		do_cooldown(cooldown_length)
 	return roll_success
 
 /datum/discipline_power/dominate/possession/activate(mob/living/carbon/human/target)
 	. = ..()
 	target.dir = get_dir(target, owner)
-	to_chat(target, span_danger("Тело цепенеет: в ваш разум вторгается чья-то неодолимая воля..."))
+	to_chat(target, span_phobia("Тело цепенеет: в ваш разум вторгается чья-то неодолимая воля..."))	// CORVAX EDIT
 
 	to_chat(owner, span_warning("Вы начинаете вплетать своё сознание в разум [target.declent_ru(GENITIVE)]..."))
 
@@ -537,7 +559,8 @@
 	var/datum/possession_controller/controller = new(owner, target, src)
 	active_possession = WEAKREF(controller)
 	to_chat(owner, span_warning("Вы завладели телом [target.declent_ru(GENITIVE)]!"))
-	to_chat(target, span_danger("Чужой разум грубо вытесняет ваше сознание и забирает власть над телом!"))
+	to_chat(target, span_phobia("Чужой разум грубо вытесняет ваше сознание и забирает власть над телом!"))
+	target.dominate_feedback("Ваше тело захвачено") // CORVAX EDIT
 	target.possessed = TRUE
 	log_combat(owner, target, "Possessed via Dominate Possession")
 	SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
@@ -549,7 +572,7 @@
 
 	level = 6
 
-	check_flags = DISC_CHECK_SPEAK|DISC_CHECK_SEE
+	check_flags = DISC_CHECK_SPEAK|DISC_CHECK_SEE|DISC_CHECK_DIRECT_SEE	// CORVAX EDIT
 	target_type = TARGET_HUMAN
 
 	cooldown_length = 15 SECONDS
@@ -557,7 +580,7 @@
 
 /datum/discipline_power/dominate/autonomic_mastery/pre_activation_checks(mob/living/carbon/human/target)
 
-	var/roll_success = dominate_check(owner, target)
+	var/roll_success = dominate_check(owner, target, list(STAT_CHARISMA, STAT_LEADERSHIP))	// CORVAX EDIT
 	if(roll_success)
 		return TRUE
 	else
@@ -567,32 +590,32 @@
 /datum/discipline_power/dominate/autonomic_mastery/activate(mob/living/carbon/human/target)
 	. = ..()
 	to_chat(owner, span_warning("Вы подчинили себе тело [target.declent_ru(GENITIVE)]!"))
-	var/list/orders = list("Сон", "Пробуждение", "Сердечный приступ", "Оживление")
+	var/list/orders = list("Удушье", "Дыхание", "Сон", "Пробуждение")	// CORVAX EDIT
 	var/order = tgui_input_list(owner, "Выберите приказ","Выбор приказа", orders)
 	if(!order)
 		return
-	switch(order)
+	switch(order)	// CORVAX EDIT
+		if("Удушье")
+			owner.say("Задохнись")
+			target.adjust_oxy_loss(80, FALSE)
+			target.adjust_stamina_loss(90, FALSE)
+			target.emote("gasp")
+			to_chat(target, span_phobia("Горло сжимается: вы не можете вдохнуть!"))
+			SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
+		if("Дыхание")
+			owner.say("Дыши")
+			target.adjust_oxy_loss(-60, FALSE)
+			to_chat(target, span_phobia("Воздух с силой врывается в лёгкие!"))
+			SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
 		if("Сон")
 			owner.say("Спи")
 			target.Sleeping(200)
-			to_chat(target, span_danger("На вас внезапно наваливается усталость"))
+			to_chat(target, span_phobia("На вас внезапно наваливается усталость"))
 			SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
 		if("Пробуждение")
 			owner.say("Проснись")
 			target.SetSleeping(0)
-			to_chat(target, span_danger("Вас внезапно переполняет бодрость"))
-			SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
-		if("Сердечный приступ")
-			owner.say("Умри")
-			target.adjust_stamina_loss(60, FALSE)
-			target.set_heartattack(TRUE)
-			to_chat(target, span_danger("Грудь пронзает страшная боль!"))
-			SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
-		if("Оживление")
-			owner.say("Живи")
-			target.set_heartattack(FALSE)
-			to_chat(target, span_danger("Сердце бешено колотится!"))
-			target.revive()
+			to_chat(target, span_phobia("Вас внезапно переполняет бодрость"))
 			SEND_SOUND(target, sound('modular_darkpack/modules/powers/sounds/dominate.ogg'))
 
 #undef TRAIT_MESMERIZED

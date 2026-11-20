@@ -28,12 +28,17 @@
 		new /datum/data/vending_product("Болты с бодкин-наконечником", /obj/item/ammo_box/darkpack/arrows/bodkin, 800),
 		new /datum/data/vending_product("Болты с широким наконечником", /obj/item/ammo_box/darkpack/arrows/broadhead, 800),
 		// CRIMSON GRID ADDITION END - Armory Ammunition Additions
+		new /datum/data/vending_product("ice hiking boots", /obj/item/clothing/shoes/winterboots/ice_boots, 100),
 	)
 	product_types = list(
 		/obj/item/fishing_rod,
+		/obj/item/fishing_rod/telescopic,
 		/obj/item/bait_can/worm,
 		/obj/item/bait_can/super_baits,
 		/obj/item/storage/toolbox/fishing,
 		/obj/item/storage/box/fishing_lures,
+		/obj/item/storage/box/fishing_hooks,
+		/obj/item/storage/box/fishing_lines,
+		/obj/item/storage/bag/fishing,
 		/obj/item/fishing_line/auto_reel
 	)

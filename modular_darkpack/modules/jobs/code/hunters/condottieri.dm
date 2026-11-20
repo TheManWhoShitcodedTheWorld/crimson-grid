@@ -45,6 +45,7 @@
 
 /datum/outfit/job/vampire/condottieri/pre_equip(mob/living/carbon/human/H)
 	. = ..()
+	H.add_traits(list(TRAIT_TRUE_FAITH), JOB_TRAIT)
 	if(H.mind)
 		H.mind.set_holy_role(HOLY_ROLE_PRIEST)
 

@@ -1,7 +1,7 @@
 /* Nyx's Bangle */
 /obj/item/occult_artifact/werewolf/nyxs_bangle
 	name = "silver bracelet"
-	desc = "Браслет-цепочка из серебра."
+	desc = "Браслет-цепочка из серебра. Украшен изящными, но загадочными символами."
 	true_name = "Nyx's Bangle"
 	true_desc = "Серебряный браслет, покрытый множеством глифов."
 	icon_state = "bangle"

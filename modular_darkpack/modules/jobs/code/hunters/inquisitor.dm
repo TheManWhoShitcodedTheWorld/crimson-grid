@@ -25,8 +25,8 @@
 		JOB_INQUISITOR
 	)
 
-	splat_slots = list(SPLAT_GHOUL = 1, SPLAT_KINFOLK = 1, SPLAT_NONE = 3)
-	allowed_splats = list(SPLAT_NONE, SPLAT_GHOUL, SPLAT_KINFOLK) // infiltrators and betrayal arcs
+	// splat_slots = list(SPLAT_GHOUL = 1, SPLAT_KINFOLK = 1, SPLAT_NONE = 3)	// CORVAX EDIT
+	allowed_splats = list(SPLAT_NONE)	// CORVAX EDIT
 
 /datum/outfit/job/vampire/inquisitor
 	name = JOB_INQUISITOR
@@ -41,10 +41,11 @@
 	glasses = /obj/item/clothing/glasses/vampire/sun
 	r_pocket = /obj/item/vamp/keys/hunter
 	l_pocket = /obj/item/smartphone/inquisitor
-	backpack_contents = list(/obj/item/vampire_stake=2, /obj/item/intel_report=1, /obj/item/vampirebook/bible=1, /obj/item/masquerade_contract=1, /obj/item/card/credit=1)
+	backpack_contents = list(/obj/item/vampire_stake=2, /obj/item/intel_report=1, /obj/item/vampirebook/bible=1, /obj/item/card/credit=1)
 
 /datum/outfit/job/vampire/inquisitor/pre_equip(mob/living/carbon/human/H)
 	. = ..()
+	H.add_traits(list(TRAIT_TRUE_FAITH), JOB_TRAIT)
 	if(H.mind)
 		H.mind.set_holy_role(HOLY_ROLE_PRIEST)
 

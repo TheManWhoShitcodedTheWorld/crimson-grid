@@ -13,11 +13,12 @@
 	power_type = /datum/discipline_power/necromancy
 	signature_clan = VAMPIRE_CLAN_GIOVANNI
 
-/datum/discipline/necromancy/post_gain()
+/datum/discipline/necromancy/post_gain(post_gain_applied)
 	. = ..()
-	var/datum/action/ritual_drawing/necromancy/ritualist = new()
-	ritualist.Grant(owner)
-	ritualist.level = level
+	if(!post_gain_applied)
+		var/datum/action/ritual_drawing/necromancy/ritualist = new()
+		ritualist.Grant(owner)
+		ritualist.level = level
 
 /datum/discipline/necromancy/post_loss()
 	. = ..()
@@ -43,7 +44,7 @@
 
 /datum/discipline_power/necromancy/shroudsight
 	name = "Взгляд за Завесу"
-	desc = "Ясно видьте в темноте и замечайте призраков рядом."
+	desc = "Видьте и говорите с призраками поблизости."
 	level = 1
 	check_flags = DISC_CHECK_CONSCIOUS
 	vitae_cost = 0

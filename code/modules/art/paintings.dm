@@ -431,13 +431,13 @@ GLOBAL_LIST_INIT(canvas_dimensions, init_canvas_dimensions())
 	if(!painting_implement)
 		return
 	if(istype(painting_implement, /obj/item/paint_palette))
-		return "Oil on canvas"
+		return "Масляная живопись"
 	else if(istype(painting_implement, /obj/item/toy/crayon/spraycan))
-		return "Spraycan on canvas"
+		return "Аэрозольная живопись"
 	else if(istype(painting_implement, /obj/item/toy/crayon))
-		return "Crayon on canvas"
+		return "Рисунок мелком"
 	else if(istype(painting_implement, /obj/item/pen) || istype(painting_implement, /obj/item/airlock_painter/decal))
-		return "Ink on canvas"
+		return "Рисунок чернилами"
 	else if(istype(painting_implement, /obj/item/soap) || istype(painting_implement, /obj/item/rag))
 		return //These are just for cleaning, ignore them
 	else

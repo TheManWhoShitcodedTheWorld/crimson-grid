@@ -24,6 +24,7 @@
 	var/black_market = FALSE
 	var/datum/storyteller_roll/fencing/sell_roll
 	var/datum/storyteller_roll/selling_masquerade_sensitive/masquerade_roll
+	var/owner_needed = TRUE	// CORVAX EDIT
 
 /obj/lombard/Initialize(mapload)
 	. = ..()
@@ -34,11 +35,24 @@
 	if(owner)
 		RegisterSignal(owner, COMSIG_QDELETING, PROC_REF(cleanup_owner))
 
+// CORVAX EDIT START
+/obj/lombard/proc/has_valid_owner()
+	if(!owner_needed)
+		return TRUE
+	if((!owner) || get_dist(src, owner) > 1 || owner.stat >= HARD_CRIT)
+		return FALSE
+	return TRUE
+// CORVAX EDIT END
+
 /obj/lombard/proc/cleanup_owner()
 	SIGNAL_HANDLER
 	owner = null
 
 /obj/lombard/item_interaction(mob/living/user, obj/item/tool, list/modifiers)
+	if(!has_valid_owner())	// CORVAX EDIT
+		to_chat(user, span_alert("За прилавком никого нет, продать вам что-то некому..."))
+		return ITEM_INTERACT_BLOCKING
+
 	var/datum/component/selling/selling_comp = tool.GetComponent(/datum/component/selling)
 	if(!selling_comp)
 		return NONE
@@ -167,6 +181,10 @@
 /obj/lombard/mouse_drop_receive(atom/sold, mob/living/user, params)
 	. = ..()
 
+	if(!has_valid_owner())	// CORVAX EDIT
+		to_chat(user, span_alert("За прилавком никого нет, продать вам что-то некому..."))
+		return
+
 	var/datum/component/selling/selling_comp = sold.GetComponent(/datum/component/selling)
 	if(!selling_comp)
 		to_chat(user, span_warning("[capitalize(sold.declent_ru(ACCUSATIVE))] здесь не продать."))
@@ -270,7 +288,7 @@
 
 	if(roll_output != ROLL_SUCCESS)
 		to_chat(user, span_warning("Скверное предчувствие: зря вы продали эту сверхъестественную вещь..."))
-		SEND_SIGNAL(user, COMSIG_MASQUERADE_VIOLATION)
+		SEND_SIGNAL(user, COMSIG_MASQUERADE_VIOLATION, "продаёт сверхъестественную вещь") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(user, COMSIG_MASQUERADE_VIOLATION)
 		if(shop_role && length(shop_role.masquerade_item_failure_phrases))
 			owner.realistic_say(pick(shop_role.masquerade_item_failure_phrases))
 		return FALSE

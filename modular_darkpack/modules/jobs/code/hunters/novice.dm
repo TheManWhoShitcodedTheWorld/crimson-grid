@@ -25,7 +25,8 @@
 		JOB_NOVICE
 	)
 
-	allowed_splats = list(SPLAT_NONE)
+	splat_slots = list(SPLAT_GHOUL = 1, SPLAT_KINFOLK = 1, SPLAT_NONE = 3)	// CORVAX EDIT
+	allowed_splats = list(SPLAT_NONE, SPLAT_GHOUL, SPLAT_KINFOLK) // infiltrators and betrayal arcs	// CORVAX EDIT
 
 
 /datum/outfit/job/vampire/novice

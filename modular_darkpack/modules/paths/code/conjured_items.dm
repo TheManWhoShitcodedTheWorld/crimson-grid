@@ -54,7 +54,7 @@
 	desc = "Вашу руку охватил сверхъестественный огонь."
 	icon_state = "flame"
 	inhand_icon_state = "flame"
-	force = 15
+	force = 25 //CRIMSON EDIT CHANGE - Original: 15
 	fancy = FALSE
 
 // Levinbolt items
@@ -63,7 +63,7 @@
 	desc = "По вашей руке бегут электрические разряды!"
 	icon_state = "illuminate"
 	inhand_icon_state = "illuminate"
-	force = 10
+	force = 20 // CRIMSON EDIT CHANGE - Original: 10
 	light_range = 2
 	light_power = 1
 	light_color = COLOR_WHITE

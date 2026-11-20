@@ -1,6 +1,6 @@
 /datum/job/vampire/gargoyle
 	title = JOB_CHANTRY_GARGOYLE
-	faction = FACTION_CAMARILLA
+	faction = FACTION_TREMERE // CORVAX EDIT : FACTION_CAMARILLA>FACTION_TREMERE
 	total_positions = 5
 	spawn_positions = 5
 	supervisors = SUPERVISOR_REGENT

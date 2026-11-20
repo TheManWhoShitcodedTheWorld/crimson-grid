@@ -158,7 +158,7 @@
 		new /datum/data/vending_product("Армейская куртка", /obj/item/clothing/suit/vampire/toggled/military_jacket, 25),
 		new /datum/data/vending_product("Сапоги с пряжками", /obj/item/clothing/shoes/vampire/harness_boots, 30),
 		new /datum/data/vending_product("Коричневые сапоги с пряжками", /obj/item/clothing/shoes/vampire/harness_boots/brown, 30),
-		new /datum/data/vending_product("Наручные часы", /obj/item/watch, 20),
+		new /datum/data/vending_product("Наручные часы", /obj/item/clothing/watch, 20),
 		new /datum/data/vending_product("Берет", /obj/item/clothing/head/beret, 15),
 		new /datum/data/vending_product("Мариньерка", /obj/item/clothing/under/rank/civilian/mime, 60),
 		new /datum/data/vending_product("Шляпа с пропеллером", /obj/item/clothing/head/soft/propeller_hat, 25),

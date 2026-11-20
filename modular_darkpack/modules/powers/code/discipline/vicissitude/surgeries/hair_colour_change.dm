@@ -38,7 +38,7 @@
 	if(!IN_GIVEN_RANGE(surgeon, patient, 1))
 		return FALSE
 	patient.set_hairstyle(new_style, update = TRUE)
-	SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION)
 	playsound(patient, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(surgeon, span_notice("Вы меняете причёску [patient.declent_ru(GENITIVE)]."))
 
@@ -58,7 +58,7 @@
 		return FALSE
 	patient.set_haircolor(sanitize_hexcolor(new_hair_color))
 	patient.dna.update_ui_block(/datum/dna_block/identity/hair_color)
-	SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION)
 	playsound(patient, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 
 	display_results(

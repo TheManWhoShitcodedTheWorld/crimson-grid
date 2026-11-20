@@ -51,7 +51,8 @@
 		to_chat(src, span_warning("Вы чувствуете: <b>КРОВИ</b> в жертве почти не осталось."))
 
 	if(first_drink && !HAS_TRAIT(src, TRAIT_BLOODY_LOVER) && has_conscious_witness()) // CORVAX EDIT +first_drink +has_conscious_witness
-		SEND_SIGNAL(src, COMSIG_MASQUERADE_VIOLATION)
+		SEND_SIGNAL(src, COMSIG_MASQUERADE_VIOLATION, "пьёт чужую кровь") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(src, COMSIG_MASQUERADE_VIOLATION)
+
 
 	if(!do_after(src, 3 SECONDS, target = drunk_from, timed_action_flags = NONE, show_progress = FALSE))
 		remove_drinking_overlay(drunk_from)
@@ -79,6 +80,13 @@
 	if(HAS_TRAIT(src, TRAIT_PAINFUL_VAMPIRE_KISS))
 		drunk_from.adjust_brute_loss(20, TRUE)
 		drunk_from.emote("scream") // CORVAX EDIT ADD
+
+	if(HAS_TRAIT(src, TRAIT_VITAE_ADDICTION) && get_kindred_splat(drunk_from))
+		var/datum/splat/vampire/kindred/drinker_kindred = get_kindred_splat(src)
+		if(drinker_kindred && (drinker_kindred.clan?.id == VAMPIRE_CLAN_BANU_HAQIM))
+			adjust_agg_loss(45, TRUE)
+			to_chat(src, span_userdanger("Проклятие Тремер обжигает вашу кровь!"))
+			playsound(src, SFX_SEAR, 50, TRUE)
 
 	//Ventrue can suck on normal people, but not homeless people and animals.
 	//BLOOD_QUALITY_LOV - 1, BLOOD_QUALITY_NORMAL - 2, BLOOD_QUALITY_HIGH - 3. Blue blood gives +1 to suction

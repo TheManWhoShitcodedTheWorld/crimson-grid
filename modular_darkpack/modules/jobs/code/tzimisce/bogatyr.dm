@@ -1,7 +1,7 @@
 
 /datum/job/vampire/bogatyr
 	title = JOB_BOGATYR
-	faction = FACTION_SABBAT
+	faction = FACTION_OLD_TZIMISCE // CORVAX EDIT : FACTION_SABBAT>FACTION_OLD_TZIMISCE
 	total_positions = 4
 	spawn_positions = 4
 	supervisors = "законами гостеприимства"

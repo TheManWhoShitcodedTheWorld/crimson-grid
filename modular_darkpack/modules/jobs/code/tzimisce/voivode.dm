@@ -1,6 +1,6 @@
 /datum/job/vampire/voivode
 	title = JOB_VOIVODE
-	faction = FACTION_SABBAT
+	faction = FACTION_OLD_TZIMISCE // CORVAX EDIT : FACTION_SABBAT>FACTION_OLD_TZIMISCE
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "законами гостеприимства"

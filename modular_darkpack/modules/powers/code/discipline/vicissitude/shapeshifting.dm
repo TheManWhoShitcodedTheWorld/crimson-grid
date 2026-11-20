@@ -76,7 +76,7 @@
 			target.gender = PLURAL
 		if("Средний")
 			target.gender = NEUTER
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы меняете пол [target.declent_ru(GENITIVE)]."))
 
@@ -92,7 +92,7 @@
 	target.update_body(is_creating = TRUE) // or else physique won't change properly
 	target.update_appearance(UPDATE_OVERLAYS) //(hulk male/female)
 	target.update_clothing(ITEM_SLOT_ICLOTHING) // update gender shaped clothing
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы меняете телосложение [target.declent_ru(GENITIVE)]."))
 	return TRUE
@@ -108,7 +108,7 @@
 	target.set_eye_color(sanitize_hexcolor(new_eye_color))
 	target.dna.update_ui_block(/datum/dna_block/identity/eye_colors)
 	target.update_body()
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы меняете цвет глаз [target.declent_ru(GENITIVE)]."))
 	return TRUE
@@ -122,7 +122,7 @@
 	if(!do_after(owner, delay = 1 TURNS, target = target))
 		return FALSE
 	target.set_facial_hairstyle(new_style, update = TRUE)
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы меняете бороду и усы [target.declent_ru(GENITIVE)]."))
 
@@ -135,7 +135,7 @@
 		return FALSE
 	target.set_facial_haircolor(sanitize_hexcolor(new_face_color))
 	target.dna.update_ui_block(/datum/dna_block/identity/facial_color)
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы меняете цвет бороды и усов [target.declent_ru(GENITIVE)]."))
 	return TRUE
@@ -149,7 +149,7 @@
 	if(!do_after(owner, delay = 1 TURNS, target = target))
 		return FALSE
 	target.set_hairstyle(new_style, update = TRUE)
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы меняете причёску [target.declent_ru(GENITIVE)]."))
 
@@ -162,7 +162,7 @@
 		return FALSE
 	target.set_haircolor(sanitize_hexcolor(new_hair_color))
 	target.dna.update_ui_block(/datum/dna_block/identity/hair_color)
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы меняете цвет волос [target.declent_ru(GENITIVE)]."))
 	return TRUE
@@ -180,7 +180,7 @@
 		target.dna.real_name = newname
 	if(target.mind)
 		target.mind.name = newname
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы даёте [target.declent_ru(DATIVE)] новое имя."))
 	return TRUE
@@ -203,7 +203,7 @@
 	target.dna.update_ui_block(/datum/dna_block/identity/skin_tone)
 	target.update_body(is_creating = TRUE)
 	target.update_appearance(UPDATE_OVERLAYS)
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы меняете оттенок кожи [target.declent_ru(GENITIVE)]."))
 	return TRUE
@@ -226,7 +226,7 @@
 	if(!do_after(owner, delay = 1 TURNS, target = target))
 		return FALSE
 	target.set_mob_height(new_height)
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	playsound(target, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 	to_chat(owner, span_notice("Вы меняете рост [target.declent_ru(GENITIVE)]."))
 	return TRUE

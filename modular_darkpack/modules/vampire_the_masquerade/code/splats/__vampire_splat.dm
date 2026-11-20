@@ -17,10 +17,10 @@
 		var/has_witness = ishuman(owner) && owner.has_conscious_witness()
 		if(has_witness)
 			if(HAS_TRAIT(owner, TRAIT_MASQUERADE_VIOLATING_FACE) && !is_face_covered())
-				SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+				SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "ходит с нечеловеческим лицом") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 
 			if(HAS_TRAIT(owner, TRAIT_MASQUERADE_VIOLATING_EYES) && !is_eyes_covered())
-				SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+				SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "ходит с нечеловеческими глазами") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 		// CORVAX EDIT ADD END
 
 		COOLDOWN_START(src, check_masq_violating_cooldown, 1 TURNS)

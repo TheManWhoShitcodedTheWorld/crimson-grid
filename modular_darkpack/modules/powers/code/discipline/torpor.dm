@@ -88,7 +88,7 @@
 	// but leave out limbs so we can do it specially
 	user.revive(flags_to_heal & ~HEAL_LIMBS)
 	to_chat(user, span_changeling("Мы вернули себя к жизни."))
-	SEND_SIGNAL(user, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(user, COMSIG_MASQUERADE_VIOLATION, "возвращается к жизни") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(user, COMSIG_MASQUERADE_VIOLATION)
 
 /datum/discipline_power/torpor/proc/ready_to_regenerate(mob/user)
 	if(QDELETED(src) || QDELETED(user))

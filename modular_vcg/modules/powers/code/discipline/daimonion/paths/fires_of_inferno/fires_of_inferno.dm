@@ -49,18 +49,24 @@
 
 /datum/discipline_power/daimonion/path/inferno/lighter
 	name = "Зажигалка"
-	desc = "Вызовите искру адского огня."
+	desc = "Воплотите инферно — станьте невосприимчивы к Ротшреку."
 
 	level = 1
-	range = 7
-	target_type = TARGET_MOB
+	range = 1
+	target_type = TARGET_SELF
+	duration_length = 3 TURNS
 
 /datum/discipline_power/daimonion/path/inferno/lighter/activate(mob/living/target)
 	if(..())
 		return
-	to_chat(owner, span_warning("Вы вызываете искру адского пламени и поджигаете [target.declent_ru(ACCUSATIVE)]!"))
-	target.adjust_fire_stacks(1, overwrite_color = COLOR_VERY_DARK_LIME_GREEN)
-	target.ignite_mob()
+	to_chat(owner, span_notice("Вы становитесь воплощением инферно!"))
+	to_chat(owner, span_notice("Вы больше не боитесь огня."))
+	ADD_TRAIT(owner, ROTSCHRECK_IMMUNITY, FIRES_OF_INFERNO_TRAIT)
+
+/datum/discipline_power/daimonion/path/inferno/lighter/deactivate(atom/target, direct)
+	. = ..()
+	to_chat(owner, span_notice("Ваш страх перед огнём возвращается."))
+	REMOVE_TRAIT(owner, ROTSCHRECK_IMMUNITY, FIRES_OF_INFERNO_TRAIT)
 
 /datum/discipline_power/daimonion/path/inferno/stovetop
 	name = "Конфорка"

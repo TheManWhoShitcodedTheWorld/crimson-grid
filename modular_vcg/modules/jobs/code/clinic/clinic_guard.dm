@@ -17,9 +17,9 @@
 		"Hospise Orderly",
 	)
 
-	allowed_splats = list(SPLAT_GHOUL, SPLAT_KINFOLK, SPLAT_NONE, SPLAT_GAROU, SPLAT_KINDRED)
-	splat_slots = list(SPLAT_GHOUL = 2, SPLAT_KINFOLK = 2)
-
+	allowed_splats = list(SPLAT_KINDRED, SPLAT_GHOUL, SPLAT_KINFOLK, SPLAT_NONE)
+	splat_slots = list(SPLAT_GHOUL = 1, SPLAT_KINFOLK = 1)
+	allowed_clans = list(VAMPIRE_CLAN_BANU_HAQIM, VAMPIRE_CLAN_BANU_HAQIM_VIZIER)
 	description = "Вы санитар клиники. Ваша главная забота - безопасность врачей, пациентов и оборудования."
 	minimum_masquerade = 0
 	maximal_generation = 8

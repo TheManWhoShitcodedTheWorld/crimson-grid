@@ -20,7 +20,7 @@
 	else
 		UnregisterSignal(src, list(COMSIG_SEEN_MASQUERADE_VIOLATION, COMSIG_MASQUERADE_REINFORCE, COMSIG_LIVING_DEATH, COMSIG_ALL_MASQUERADE_REINFORCE))
 
-/atom/movable/proc/on_masquerade_violation()
+/atom/movable/proc/on_masquerade_violation(datum/source, violation_reason) // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: /atom/movable/proc/on_masquerade_violation()
 	if(!COOLDOWN_FINISHED(src, masquerade_violation_cooldown))
 		return
 	var/area/vtm/breacher_area = get_area(src)
@@ -32,6 +32,11 @@
 		if(!moving_atom.violation_observer)
 			continue
 		SEND_SIGNAL(moving_atom, COMSIG_SEEN_MASQUERADE_VIOLATION, src)
+	// CORVAX EDIT ADD START - Player Masquerade Witness
+	if(isliving(src) && !ismundane(src))
+		for(var/mob/living/carbon/human/witness in viewers(7, src))
+			witness.notice_masquerade_violation(src, violation_reason)
+	// CORVAX EDIT ADD END - Player Masquerade Witness
 	COOLDOWN_START(src, masquerade_violation_cooldown, 1 TURNS)
 
 /atom/movable/proc/on_observed_violation(atom/source, atom/movable/player_breacher)

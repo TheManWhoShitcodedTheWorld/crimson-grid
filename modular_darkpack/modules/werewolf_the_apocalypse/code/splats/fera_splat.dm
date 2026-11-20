@@ -193,7 +193,7 @@
 	var/datum/species/human/shifter/shifter_species = owner.dna.species
 	if(istype(shifter_species))
 		if(shifter_species.is_veil_breaching_form(owner) && !causes_delirium())
-			SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+			SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "ходит в облике чудовища") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 		if(causes_delirium())
 			for(var/mob/living/carbon/human/guy in oviewers(owner, DEFAULT_SIGHT_DISTANCE))
 				if(!guy.affected_by_delirium())

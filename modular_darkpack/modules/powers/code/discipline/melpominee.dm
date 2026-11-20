@@ -1,12 +1,12 @@
-/datum/discipline/melpominee
+/datum/discipline/melpominee	// CORVAX EDIT
 	name = "Мельпомения"
 	desc = {"Мельпомения, названная в честь греческой музы трагедии, - уникальная Дисциплина Дочерей Какофонии. Она раскрывает силу голоса, который потрясает слушателей до глубины души и позволяет вампиру творить со звуком невозможное.
 ● Блуждающий голос: пассивно
-●● Незримый собеседник: Смекалка + Исполнение (сложность 7)
-●●● Мадригал: Смекалка + Исполнение против Смекалки + Шестого чувства цели
-●●●● Зов сирены: Смекалка + Исполнение против Воли цели
-●●●●● Виртуозность: пассивно, переключается
-●●●●●● Пронзительное крещендо: пассивно"}
+●● Незримый собеседник: Смекалка + Исполнение
+●●● Мадригал: Обаяние + Исполнение против Смекалки + Бдительности цели
+●●●● Зов сирены: Манипуляция + Исполнение против Воли
+●●●●● Виртуозность: пассивно, расширяет другие силы
+●●●●●● Пронзительное крещендо: Манипуляция + Запугивание."}
 	icon_state = "melpominee"
 	clan_restricted = TRUE
 	power_type = /datum/discipline_power/melpominee
@@ -170,36 +170,35 @@
 	// Composed message of all the people in listener_list
 	var/those_who_hear = "[english_list(listener_list)]."
 
-	// The roll itself; wits+perception against diff 7
-	var/mob/living/caster = owner
-
 	var/datum/storyteller_roll/phantom_speaker/roll_datum = new()
 	if(HAS_TRAIT(owner, TRAIT_ENCHANTING_VOICE))
 		roll_datum.difficulty -= 2
-	var/roll_result = roll_datum.st_roll(caster)
+	var/roll_result = roll_datum.st_roll(owner)	// CORVAX EDIT
 
 	if(roll_result < ROLL_SUCCESS)
 		to_chat(owner, span_notice("Ваш голос не достиг слушателей: [those_who_hear]."))
 		return
 
-	for(var/mob/living/guy in listener_list)
-		if(guy in free_speakers)
-			if(free_speakers[guy] > 0)
-				free_speakers[guy] = free_speakers[guy]-1
-			else
-				free_speakers -= guy
-		else
-			free_speakers += guy
-			free_speakers[guy] = roll_result
+	var/freebie = FALSE	// CORVAX EDIT
+	if(!isnull(free_speakers))
+		for(var/mob/living/guy in listener_list)
+			if(guy in free_speakers && free_speakers[guy] > 0)
+				free_speakers[guy]--
+				freebie = TRUE
+				break
 
-	if(!(listener_list ~= free_speakers)) // if we're talking to anybody new
-		var/bp_to_use = (length(listener_list)-length(free_speakers))-6 // (The amount of people we're talking to - people we can talk to for free) - 6
-		var/bp_used = max(1, bp_to_use) // How much BP we're actually using
-		owner.adjust_blood_pool(bp_used)
+	if(!freebie)	// CORVAX EDIT
+		owner.adjust_blood_pool(-1)
+
+	if(isnull(free_speakers))	// CORVAX EDIT
+		free_speakers = list()
+	for(var/mob/living/guy in listener_list)
+		if(!(guy in free_speakers))	// CORVAX EDIT
+			free_speakers[guy] = roll_result
 
 	for(var/mob/living/final_listeners in listener_list)
 		to_chat(final_listeners, span_boldannounce("<i>В вашей голове звучит голос...</i>"))
-		final_listeners.Hear(owner, language, span_purple(message), message_mods = list(MODE_SING, MODE_TTS_MESSAGE_OVERRIDE = input_message)) // CORVAX EDIT CHANGE - ORIGINAL: final_listeners.Hear(owner, language, span_purple(message), message_mods = list(MODE_SING))
+		final_listeners.Hear(owner, language, span_purple(message), message_mods = list(MODE_SING, MODE_TTS_MESSAGE_OVERRIDE = input_message))	// CORVAX EDIT
 
 	to_chat(owner, span_notice("Ваш голос достиг слушателей: [those_who_hear]."))
 
@@ -229,7 +228,7 @@
 	var/our_difficulty = 7
 	if(HAS_TRAIT(owner, TRAIT_ENCHANTING_VOICE))
 		our_difficulty -= 2
-	var/our_power = SSroll.storyteller_roll_datum(owner, difficulty = our_difficulty, applic_stats = list(STAT_WITS, STAT_PERFORMANCE), numerical = TRUE)
+	var/our_power = SSroll.storyteller_roll_datum(owner, difficulty = our_difficulty, applic_stats = list(STAT_CHARISMA, STAT_PERFORMANCE), numerical = TRUE)	// CORVAX EDIT
 	var/list/emotion_labels = aura_emotion_labels()
 	var/emotion = emotion_labels[tgui_input_list(owner, "Какое чувство вы хотите пробудить?", "Мадригал", emotion_labels)]
 
@@ -238,7 +237,7 @@
 		var/their_difficulty = 7
 		if(HAS_TRAIT(member, TRAIT_COLDLY_LOGICAL))
 			their_difficulty -= 1
-		var/their_power = SSroll.storyteller_roll_datum(member, difficulty = their_difficulty, applic_stats = list(STAT_WITS, STAT_AWARENESS), numerical = TRUE)
+		var/their_power = SSroll.storyteller_roll_datum(member, difficulty = their_difficulty, applic_stats = list(STAT_WITS, STAT_ALERTNESS), numerical = TRUE)	// CORVAX EDIT
 		if(our_power > their_power)
 			set_emotion(member, emotion)
 
@@ -274,13 +273,13 @@
  */
 /datum/storyteller_roll/sirens_beckoning // Difficulty is the victim's willpower
 	bumper_text = "зов сирены"
-	applicable_stats = list(STAT_WITS, STAT_PERFORMANCE)
+	applicable_stats = list(STAT_MANIPULATION, STAT_PERFORMANCE)	// CORVAX EDIT
 	numerical = TRUE
 	roll_output_type = ROLL_FLAG_ROLLER|ROLL_FLAG_TARGET
 	spammy_roll = TRUE
 
-/datum/storyteller_roll/sirens_beckoning/victim // Difficulty is the siren's Appearance + Performance
-	applicable_stats = list(STAT_TEMPORARY_WILLPOWER)
+/datum/storyteller_roll/sirens_beckoning/victim	// CORVAX EDIT
+	applicable_stats = list(STAT_PERMANENT_WILLPOWER)
 	roll_output_type = ROLL_FLAG_ROLLER
 
 /datum/discipline_power/melpominee/sirens_beckoning
@@ -342,10 +341,10 @@
 		listener_list = ohearers(owner, 7)
 
 	for(var/mob/living/carbon/listener in listener_list)
-		var/our_difficulty = listener.st_get_stat(STAT_TEMPORARY_WILLPOWER)
+		var/our_difficulty = listener.st_get_stat(STAT_PERMANENT_WILLPOWER)	// CORVAX EDIT
 		if(HAS_TRAIT(owner, TRAIT_ENCHANTING_VOICE))
 			our_difficulty -= 2
-		var/our_power = SSroll.storyteller_roll_datum(owner, target, /datum/storyteller_roll/sirens_beckoning, 0,  difficulty = our_difficulty)
+		var/our_power = SSroll.storyteller_roll_datum(owner, target, /datum/storyteller_roll/sirens_beckoning, 0, difficulty = our_difficulty)	// CORVAX EDIT
 		cumulative_our_power[listener] += our_power
 
 		var/their_difficulty = owner.st_get_stat(STAT_APPEARANCE) + owner.st_get_stat(STAT_PERFORMANCE)
@@ -456,28 +455,32 @@
 	duration_length = 1 TURNS
 	cooldown_length = 3 TURNS
 
-/datum/discipline_power/melpominee/death_of_the_drum/activate()
+/datum/discipline_power/melpominee/death_of_the_drum/activate(mob/living/carbon/human/target)	// CORVAX EDIT
 	. = ..()
 	playsound(owner, 'modular_darkpack/modules/powers/sounds/melpominee/melpominee.ogg', 50)
-	for(var/mob/living/carbon/human/listener in oviewers(DEFAULT_SIGHT_DISTANCE, owner))
-		listener.Stun(1 TURNS)
-		switch(listener.get_ear_protection(TRUE))
-			if(0)
-				listener.apply_damage(50, AGGRAVATED, BODY_ZONE_HEAD)
-				listener.sound_damage(50, 3 TURNS)
-			if(1)
-				listener.apply_damage(25, AGGRAVATED, BODY_ZONE_HEAD)
-				listener.sound_damage(25, 10 TURNS)
-			if(2)
-				listener.apply_damage(15, AGGRAVATED, BODY_ZONE_HEAD)
 
+	if(!ishuman(target))
+		return
 
-		listener.remove_overlay(POWERS_LAYER)
-		var/mutable_appearance/song_overlay = mutable_appearance('modular_darkpack/modules/deprecated/icons/icons.dmi', "song", -POWERS_LAYER)
-		listener.overlays_standing[POWERS_LAYER] = song_overlay
-		listener.apply_overlay(POWERS_LAYER)
+	var/difficulty = target.st_get_stat(STAT_STAMINA) + 3
+	var/successes = SSroll.storyteller_roll_datum(owner, target, difficulty = difficulty, applic_stats = list(STAT_MANIPULATION, STAT_INTIMIDATION), numerical = TRUE)
 
-		addtimer(CALLBACK(src, PROC_REF(deactivate), listener), 1 TURNS)
+	if(successes <= 0)
+		to_chat(owner, span_warning("Ваш крик не достигает нужной частоты, чтобы ранить [target.declent_ru(ACCUSATIVE)]."))
+		to_chat(target, span_notice("Пронзительный вопль [owner.declent_ru(GENITIVE)] заставляет вас вздрогнуть, но вреда не наносит."))
+		return
+
+	var/damage = successes
+	target.apply_damage(damage * 10, AGGRAVATED, BODY_ZONE_HEAD)
+	target.Stun(1 TURNS)
+	target.sound_damage(damage * 5, 3 TURNS)
+
+	target.remove_overlay(POWERS_LAYER)
+	var/mutable_appearance/song_overlay = mutable_appearance('modular_darkpack/modules/deprecated/icons/icons.dmi', "song", -POWERS_LAYER)
+	target.overlays_standing[POWERS_LAYER] = song_overlay
+	target.apply_overlay(POWERS_LAYER)
+
+	addtimer(CALLBACK(src, PROC_REF(deactivate), target), 1 TURNS)
 
 /datum/discipline_power/melpominee/death_of_the_drum/deactivate(mob/living/carbon/human/target)
 	. = ..()

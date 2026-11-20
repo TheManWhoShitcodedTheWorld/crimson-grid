@@ -35,7 +35,7 @@
 /datum/status_effect/celerity/proc/celerity_visual(atom/newloc, dir)
 	new /obj/effect/celerity(owner.loc, owner)
 
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "двигается с нечеловеческой скоростью") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 
 // Status effect ranks
 /datum/status_effect/celerity/one

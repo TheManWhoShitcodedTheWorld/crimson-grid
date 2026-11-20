@@ -19,6 +19,11 @@
 		new /datum/data/vending_product("Костыль", /obj/item/cane/crutch),
 		new /datum/data/vending_product("Деревянный костыль", /obj/item/cane/crutch/wood),
 		new /datum/data/vending_product("Пустой пакет для крови", /obj/item/reagent_containers/blood/empty),
+		new /datum/data/vending_product("Жгут", /obj/item/tourniquet, 100),
+		new /datum/data/vending_product("Стетоскоп", /obj/item/clothing/neck/stethoscope, 50),
+		new /datum/data/vending_product("Лобное зеркало", /obj/item/clothing/head/utility/head_mirror, 50),
+		new /datum/data/vending_product("Медицинский пояс", /obj/item/storage/belt/medical, 100),
+		new /datum/data/vending_product("Пояс фельдшера", /obj/item/storage/belt/medical/paramedic, 100),
 		new /datum/data/vending_product("Неврологический молоточек", /obj/item/reflexhammer, 30),
 // CRIMSON EDIT ADD START - Medkit to Pharmacy
 		new /datum/data/vending_product("Пустая аптечка", /obj/item/storage/medkit/darkpack, 200),

@@ -54,7 +54,7 @@ the scar is received and an extra Gnosis point is spent.
 	var/successes = SSroll.storyteller_roll_datum(owner, target, /datum/storyteller_roll/gift/mothers_touch, difficulty = difficulty)
 	living_target.heal_storyteller_health(successes * 2 , TRUE, TRUE, TRUE, TRUE) // CRIMSON EDIT CHANGE - Healer Buff PR (Salubri and Theurges) - Original: var/successes = SSroll.storyteller_roll_datum(owner, target, /datum/storyteller_roll/gift/mothers_touch, difficulty = difficulty)
 
-	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION, "исцеляет раны касанием") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(owner, COMSIG_MASQUERADE_VIOLATION)
 	return TRUE
 
 

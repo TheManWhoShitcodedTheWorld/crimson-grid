@@ -22,6 +22,7 @@
 	known_contacts = list(
 		JOB_STREET_JANITOR
 	)
+	allowed_splats = list(SPLAT_GHOUL)	//CORVAX EDIT V20
 
 /datum/outfit/job/vampire/janitor
 	name = JOB_STREET_JANITOR

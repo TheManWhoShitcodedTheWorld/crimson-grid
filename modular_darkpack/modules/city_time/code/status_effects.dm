@@ -36,7 +36,7 @@
 	if(CONFIG_GET(flag/humanity_sunlight_resistance) && !owner.is_enlightenment() && (owner.st_get_stat(STAT_MORALITY) >= 10))
 		return FALSE
 
-	to_chat(owner, span_danger("СОЛНЦЕ ОПАЛЯЕТ ВАШУ ПЛОТЬ"))
+	to_chat(owner, span_phobia("СОЛНЦЕ ОПАЛЯЕТ ВАШУ ПЛОТЬ"))	// CORVAX EDIT
 	return TRUE
 
 /datum/status_effect/sunlight_burning/tick(seconds_per_tick)

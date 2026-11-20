@@ -85,8 +85,13 @@ GLOBAL_LIST_INIT(vitae_spending_rate_by_gen, list(
 	PRIVATE_PROC(TRUE)
 
 	// Base human bloodpool + 3 for every Generation below 13
+	var/was_full = (owner.bloodpool >= owner.maxbloodpool)
+
 	owner.maxbloodpool = get_max_bloodpool(generation)
-	owner.bloodpool = clamp(owner.bloodpool, 0, owner.maxbloodpool)
+	if(was_full)
+		owner.bloodpool = owner.maxbloodpool
+	else
+		owner.bloodpool = clamp(owner.bloodpool, 0, owner.maxbloodpool)
 	owner.update_blood_hud()
 
 /**

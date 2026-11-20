@@ -878,11 +878,12 @@ h2.alert {
   font-weight: bold;
   animation: hypnocolor 1500ms infinite;
   animation-direction: alternate;
+  font-size: 185%;
 }
 
 @keyframes hypnocolor {
   0% {
-    color: hsl(0, 0%, 5.1%);
+    color: hsl(268, 87%, 17%);
   }
 
   25% {
@@ -906,11 +907,12 @@ h2.alert {
   color: hsl(0, 100%, 43.3%);
   font-weight: bold;
   animation: phobia 750ms infinite;
+  font-size: 185%;
 }
 
 @keyframes phobia {
   0% {
-    color: hsl(0, 0%, 5.1%);
+    color: hsl(0, 90.8%, 66.1%);
   }
 
   50% {
@@ -918,7 +920,7 @@ h2.alert {
   }
 
   100% {
-    color: hsl(0, 0%, 5.1%);
+    color: hsl(0, 90.8%, 66.1%);
   }
 }
 

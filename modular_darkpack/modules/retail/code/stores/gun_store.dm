@@ -27,6 +27,8 @@
 		new /datum/data/vending_product("Электрошокер", /obj/item/melee/baton/security/handtaser, 250),
 		new /datum/data/vending_product("Перцовый баллончик", /obj/item/reagent_containers/spray/pepper, 200),
 		new /datum/data/vending_product("Кобура", /obj/item/storage/belt/holster/detective/darkpack, 100), // CRIMSON EDIT ADD - Shop Inventories Additions
+		new /datum/data/vending_product("Кобура для пистолета", /obj/item/storage/belt/holster, 100),
+		new /datum/data/vending_product("Разгрузочный пояс охраны", /obj/item/storage/belt/security/webbing, 100),
 		// CRIMSON GRID ADDITION BEGIN - Armory Ammunition Additions
 		new /datum/data/vending_product("Патроны 9 мм +P", /obj/item/ammo_box/darkpack/c9mm/plus, 800),
 		new /datum/data/vending_product("Патроны 9 мм бронебойные", /obj/item/ammo_box/darkpack/c9mm/ap, 1000),

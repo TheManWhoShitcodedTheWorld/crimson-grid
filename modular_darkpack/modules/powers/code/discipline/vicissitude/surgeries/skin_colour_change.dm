@@ -47,7 +47,7 @@
 	patient.dna.update_ui_block(/datum/dna_block/identity/skin_tone)
 	patient.update_body(is_creating = TRUE)
 	patient.update_appearance(UPDATE_OVERLAYS)
-	SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION, "меняет чужое тело голыми руками") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(surgeon, COMSIG_MASQUERADE_VIOLATION)
 	playsound(patient, 'modular_darkpack/modules/powers/sounds/vicissitude.ogg', 50, TRUE)
 
 	display_results(

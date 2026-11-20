@@ -271,7 +271,7 @@
 
 /mob/living/basic/cobra/typhon/Life(seconds_per_tick)
 	. = ..()
-	SEND_SIGNAL(src, COMSIG_MASQUERADE_VIOLATION)
+	SEND_SIGNAL(src, COMSIG_MASQUERADE_VIOLATION, "выглядит как чудовищный зверь") // CORVAX EDIT CHANGE - Player Masquerade Witness - Original: SEND_SIGNAL(src, COMSIG_MASQUERADE_VIOLATION)
 
 //THE HEART OF DARKNESS
 /datum/discipline_power/serpentis/the_heart_of_darkness

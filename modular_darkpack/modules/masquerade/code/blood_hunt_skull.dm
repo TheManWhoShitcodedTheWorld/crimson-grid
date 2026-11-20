@@ -30,24 +30,41 @@
 
 /obj/item/blood_hunt/attack_self(mob/user)
 	. = ..()
-	var/chosen_name = tgui_input_text(user, "Впишите имя того, на кого объявляется Охота или кому даруется прощение:", "Кровавая Охота")
+	var/chosen_name = tgui_input_text(user, "Впишите имя того, на кого объявляется Охота или кому даруется прощение:", "Кровавая Охота", encode = FALSE)
 	if(!chosen_name)
 		return
-	chosen_name = sanitize_name(chosen_name)
+	chosen_name = trim(chosen_name)
+
 	var/reason = tgui_input_text(user, "Укажите причину Кровавой Охоты:", "Причина Кровавой Охоты")
 	if(!reason)
 		return
 	reason = sanitize(reason)
 
+	var/mob/target = find_kindred_by_name(chosen_name)
+	if(!target)
+		to_chat(user, span_danger("В городе нет Сородича с таким именем!"))
+		return
+
+	if(HAS_TRAIT(target, TRAIT_HUNTED))
+		end_hunt(user, target)
+	else
+		start_hunt(user, target, reason)
+
+/obj/item/blood_hunt/proc/find_kindred_by_name(name)
+	var/wanted = normalize_hunt_name(name)
 	for(var/mob/player_mob in GLOB.kindred_list)
-		if(player_mob.real_name == chosen_name)
-			if(HAS_TRAIT(player_mob, TRAIT_HUNTED))
-				end_hunt(user, player_mob)
-				return
-			else
-				start_hunt(user, player_mob, reason)
-				return
-	to_chat(user, span_danger("В городе нет Сородича с таким именем!"))
+		if(normalize_hunt_name(player_mob.real_name) == wanted || normalize_hunt_name(player_mob.name) == wanted)
+			return player_mob
+	return null
+
+/proc/normalize_hunt_name(text)
+	var/static/regex/space_regex = regex(@"\s+", "g")
+	text = trim(text)
+	text = replacetext(text, "’", "'")
+	text = replacetext(text, "‘", "'")
+	text = replacetext(text, "`", "'")
+	text = space_regex.Replace(text, " ")
+	return lowertext(text)
 
 /obj/item/blood_hunt/proc/start_hunt(mob/user, mob/target, reason)
 	to_chat(user, span_warning("Вы вносите имя \"[target.real_name]\" в список Кровавой Охоты."))

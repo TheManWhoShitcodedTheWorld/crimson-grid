@@ -171,7 +171,6 @@
 	name = "gothic cross"
 	icon_state = "hunter_gothic"
 
-/* //CRIMSON EDIT: Removes hunter cross stun
 /obj/item/card/hunter/attack_self(mob/living/user)
 	. = ..()
 	if(!user.mind)
@@ -186,20 +185,18 @@
 	for(var/mob/living/M in get_hearers_in_view(4, src))
 		bang(get_turf(src), M, user)
 
-/obj/item/card/hunter/proc/bang(turf/turf, mob/living/living_mob, mob/living/user)
+/obj/item/card/hunter/proc/bang(turf/turf, mob/living/living_mob, mob/living/user)	// CORVAX EDIT
 	if(living_mob.stat == DEAD || living_mob == user || living_mob.mind?.holy_role) // Can't flash yourself
 		return
-	living_mob.show_message(span_warning(span_bold("ГОСПОДЬ ВИДИТ ТЕБЯ!")), MSG_AUDIBLE)
 
 	if(HAS_TRAIT(living_mob, TRAIT_REPELLED_BY_HOLINESS))
+		living_mob.show_message(span_warning(span_bold("ГОСПОДЬ ВИДИТ ТЕБЯ!")), MSG_AUDIBLE)
 		living_mob.emote("scream")
 		living_mob.pointed(user)
-
-	var/distance = max(0, get_dist(get_turf(src), turf))
-	living_mob.flash_act(affect_silicon = 1)
-	living_mob.Paralyze(max(10/max(1, distance), 5))
-	living_mob.Knockdown(max(100/max(1, distance), 40))
-*/
+		var/distance = max(0, get_dist(get_turf(src), turf))
+		living_mob.flash_act(affect_silicon = 1)
+		living_mob.Paralyze(max(10/max(1, distance), 5))
+		living_mob.Knockdown(max(100/max(1, distance), 40))
 
 /obj/item/card/hunter/attack(mob/living/target, mob/living/user)
 	. = ..()

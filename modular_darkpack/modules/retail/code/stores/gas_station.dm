@@ -11,6 +11,7 @@
 		new /datum/data/vending_product("Вейп", /obj/item/vape, 170), // CRIMSON EDIT ADD
 		new /datum/data/vending_product("Зажигалка Zippo", /obj/item/lighter, 20),
 		new /datum/data/vending_product("Зажигалка", /obj/item/lighter/greyscale, 10),
+		new /datum/data/vending_product("Жвачка", /obj/item/storage/box/gum, 5),
 		new /datum/data/vending_product("Шоколадный батончик", /obj/item/food/chocolatebar),
 		new /datum/data/vending_product("Чипсы", /obj/item/food/chips),
 		new /datum/data/vending_product("Бутылка воды", /obj/item/reagent_containers/cup/glass/vampirewater),
@@ -24,5 +25,5 @@
 		new /datum/data/vending_product("Упаковка свечей", /obj/item/storage/fancy/candle_box, 12),
 		new /datum/data/vending_product("Набор от ушибов", /obj/item/stack/medical/bruise_pack),
 		new /datum/data/vending_product("Респиратор", /obj/item/clothing/mask/gas/vampire),
-		new /datum/data/vending_product("Наручные часы", /obj/item/watch, 20) // Crimson Edit Add - What time is it?
+		new /datum/data/vending_product("Наручные часы", /obj/item/clothing/watch, 20) // Crimson Edit Add - What time is it?
 	)
